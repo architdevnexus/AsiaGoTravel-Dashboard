@@ -10,62 +10,65 @@ const OverviewSection = ({ overviewData }) => {
   const [form, setForm] = useState({
     title: overviewData?.title || "",
     description: overviewData?.description || "",
-    itinerary: Array.isArray(overviewData?.itinerary) ? overviewData.itinerary : [],
-    inclusions: Array.isArray(overviewData?.inclusions) ? overviewData.inclusions : [],
-    exclusions: Array.isArray(overviewData?.exclusions) ? overviewData.exclusions : [],
+    itinerary: Array.isArray(overviewData?.itinerary)
+      ? overviewData.itinerary
+      : [],
+    inclusions: Array.isArray(overviewData?.inclusions)
+      ? overviewData.inclusions
+      : [],
+    exclusions: Array.isArray(overviewData?.exclusions)
+      ? overviewData.exclusions
+      : [],
     summary: Array.isArray(overviewData?.summary) ? overviewData.summary : [],
     priceDetails: overviewData?.priceDetails || { amount: "" },
   });
 
   const tabs = ["Itinerary", "Inclusions", "Exclusions", "Summary"];
 
-
   const handleUpdate = async () => {
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const fd = new FormData();
+      const fd = new FormData();
 
-    // BASIC FIELDS
-    fd.append("title", form.title);
-    fd.append("description", form.description);
+      // BASIC FIELDS
+      fd.append("title", form.title);
+      fd.append("description", form.description);
 
-    // PRICE
-    fd.append("priceDetails", JSON.stringify(form.priceDetails));
+      // PRICE
+      fd.append("priceDetails", JSON.stringify(form.priceDetails));
 
-    // ARRAY FIELDS
-    fd.append("inclusions", JSON.stringify(form.inclusions));
-    fd.append("exclusions", JSON.stringify(form.exclusions));
-    fd.append("summary", JSON.stringify(form.summary));
+      // ARRAY FIELDS
+      fd.append("inclusions", JSON.stringify(form.inclusions));
+      fd.append("exclusions", JSON.stringify(form.exclusions));
+      fd.append("summary", JSON.stringify(form.summary));
 
-    // ITINERARY
-    fd.append("itinerary", JSON.stringify(form.itinerary));
+      // ITINERARY
+      fd.append("itinerary", JSON.stringify(form.itinerary));
 
-    // API CALL
-    const res = await fetch(
-      `https://www.backend.ghardekhoapna.com/api/update/${overviewData?._id}`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: fd,
+      // API CALL
+      const res = await fetch(
+        `https://www.backend.ghardekhoapna.com/api/update/${overviewData?._id}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: fd,
+        }
+      );
+
+      if (!res.ok) {
+        alert("Failed to update!");
+        return;
       }
-    );
 
-    if (!res.ok) {
-      alert("Failed to update!");
-      return;
+      alert("Package updated successfully!");
+    } catch (error) {
+      console.log(error);
+      alert("Error updating package");
     }
-
-    alert("Package updated successfully!");
-
-  } catch (error) {
-    console.log(error);
-    alert("Error updating package");
-  }
-};
-
+  };
 
   const handleChange = (key, value) => {
     setForm({ ...form, [key]: value });
@@ -153,7 +156,9 @@ const OverviewSection = ({ overviewData }) => {
                     className="w-full border p-2 rounded mt-2"
                     placeholder="Day title"
                     value={day.title}
-                    onChange={(e) => updateItineraryTitle(index, e.target.value)}
+                    onChange={(e) =>
+                      updateItineraryTitle(index, e.target.value)
+                    }
                   />
 
                   {(day.details || []).map((detail, i) => (
@@ -242,7 +247,9 @@ const OverviewSection = ({ overviewData }) => {
                   key={i}
                   className="w-full border p-2 rounded mb-2"
                   value={item}
-                  onChange={(e) => updateFieldItem("summary", i, e.target.value)}
+                  onChange={(e) =>
+                    updateFieldItem("summary", i, e.target.value)
+                  }
                 />
               ))}
 
@@ -255,10 +262,13 @@ const OverviewSection = ({ overviewData }) => {
             </div>
           )}
         </div>
-
         {/* RIGHT SIDEBAR */}
-        <div className="bg-white shadow-md rounded-lg p-5 h-fit border border-gray-100">
-          <div className="mb-5">
+        <div
+          className="bg-white shadow-md rounded-lg p-5 border border-gray-100 
+            flex flex-col h-full min-h-[550px]"
+        >
+          {/* TOP CONTENT */}
+          <div className="flex-1">
             <h3 className="text-gray-800 font-semibold">Starting From</h3>
 
             <input
@@ -275,21 +285,19 @@ const OverviewSection = ({ overviewData }) => {
                 })
               }
             />
+
+            <button className="flex items-center justify-center gap-2 w-full border border-[#3FA9F5] text-green-600 py-2 rounded-md hover:bg-green-50 transition mt-6">
+              <FaWhatsapp /> Whatsapp
+            </button>
           </div>
 
-     
-
-
-          <button className="flex items-center justify-center gap-2 w-full border border-[#3FA9F5] text-green-600 py-2 rounded-md hover:bg-green-50 transition">
-            <FaWhatsapp /> Whatsapp
+          {/* BOTTOM FIXED BUTTON */}
+          <button
+            onClick={handleUpdate}
+            className="px-6 py-2 bg-blue-600 text-white rounded mt-6"
+          >
+            Update Package
           </button>
-
-               <button
-  onClick={handleUpdate}
-  className="px-6 py-2 bg-blue-600 text-white rounded mt-6"
->
-  Update Package
-</button>
         </div>
       </div>
     </section>

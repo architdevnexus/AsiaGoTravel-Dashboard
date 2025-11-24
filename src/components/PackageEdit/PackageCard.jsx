@@ -91,7 +91,7 @@ export const BlogsCard = ({
           ))
         ) : (
           <p className="text-center col-span-full text-gray-500">
-            No Blogs found.
+            No Package found.
           </p>
         )}
       </div>

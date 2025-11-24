@@ -129,11 +129,11 @@ const PackageSlugPage = () => {
           <input name="price" value={form.price} onChange={handleChange} className="border p-2 rounded" placeholder="Price" />
           <input name="category" value={form.category} onChange={handleChange} className="border p-2 rounded" placeholder="Category" />
           <input name="features" value={form.features} onChange={handleChange} className="border p-2 rounded" placeholder="Features" />
-
+{/* 
           <textarea name="highlights" value={form.highlights} onChange={handleChange} className="border p-2 rounded h-24" placeholder="Highlights"></textarea>
           <textarea name="includes" value={form.includes} onChange={handleChange} className="border p-2 rounded h-24" placeholder="Includes"></textarea>
 
-          <textarea name="excludes" value={form.excludes} onChange={handleChange} className="border p-2 rounded h-24" placeholder="Excludes"></textarea>
+          <textarea name="excludes" value={form.excludes} onChange={handleChange} className="border p-2 rounded h-24" placeholder="Excludes"></textarea> */}
 
           <textarea name="overview" value={form.overview} onChange={handleChange} className="border p-2 rounded h-32 col-span-2" placeholder="Overview"></textarea>
 
