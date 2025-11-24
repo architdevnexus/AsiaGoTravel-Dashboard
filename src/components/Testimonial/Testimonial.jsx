@@ -12,7 +12,7 @@ export default function Testimonials() {
   // ---------------------------
   const fetchTestimonials = async () => {
     try {
-      const res = await fetch("http://194.238.18.1:3005/api/allTestimonials");
+      const res = await fetch("https://www.backend.ghardekhoapna.com/api/allTestimonials");
 
       if (!res.ok) {
         console.error("Failed to fetch testimonials");
@@ -50,7 +50,7 @@ const handleDelete = async (item) => {
 
   try {
     const res = await fetch(
-      `http://194.238.18.1:3005/api/testimonial/delete/${item._id}`,
+      `https://www.backend.ghardekhoapna.com/api/testimonial/delete/${item._id}`,
       {
         method: "DELETE",
       }
@@ -87,13 +87,13 @@ const handleSave = async (data) => {
       // -------------------------
       // UPDATE TESTIMONIAL (PATCH)
       // -------------------------
-      url = `http://194.238.18.1:3005/api/testimonial/update/${editingItem._id}`;
+      url = `https://www.backend.ghardekhoapna.com/api/testimonial/update/${editingItem._id}`;
       method = "PATCH";
     } else {
       // -------------------------
       // CREATE TESTIMONIAL (POST)
       // -------------------------
-      url = "http://194.238.18.1:3005/api/create-Testimonials";
+      url = "https://www.backend.ghardekhoapna.com/api/create-Testimonials";
       method = "POST";
     }
 

@@ -8,7 +8,7 @@ export const deleteBlogById = async (id) => {
     }
 
     const res = await fetch(
-      `http://194.238.18.1:3005/api/blog/delete/${id}`,
+      `https://www.backend.ghardekhoapna.com/api/blog/delete/${id}`,
       {
         method: "DELETE",
         headers: {
@@ -32,7 +32,7 @@ export const updateBlog = async (id, formData) => {
   try {
  const token = localStorage.getItem("token");
 
-    const res = await fetch(`http://194.238.18.1:3005/api/blog/edit/${id}`, {
+    const res = await fetch(`https://www.backend.ghardekhoapna.com/api/blog/edit/${id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,

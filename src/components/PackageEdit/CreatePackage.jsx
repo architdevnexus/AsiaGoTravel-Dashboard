@@ -162,7 +162,7 @@ const AddPackage = () => {
 
     try {
       const response = await fetch(
-        "http://194.238.18.1:3005/api/addPackage",
+        "https://www.backend.ghardekhoapna.com/api/addPackage",
         {
           method: "POST",
           body: payload,

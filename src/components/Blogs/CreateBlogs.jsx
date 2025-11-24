@@ -64,7 +64,7 @@ const CreateBlogs = () => {
     }
 
     try {
-      const res = await fetch("http://194.238.18.1:3005/api/blogPost", {
+      const res = await fetch("https://www.backend.ghardekhoapna.com/api/blogPost", {
         method: "POST",
         headers: {
           Authorization:

@@ -1,5 +1,5 @@
 import React from "react";
-import { FaRegEdit, FaTrashAlt } from "react-icons/fa";
+import { FaCheck, FaRegEdit, FaTrashAlt } from "react-icons/fa";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { IoLocationOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
@@ -43,10 +43,18 @@ export const BlogsCard = ({
                   <h3 className="text-2xl font-semibold mt-1 leading-snug">
                     {pkg?.title}
                   </h3>
-
-                  <p className="text-gray-500 text-sm">
-                    {pkg?.description || "sdlmlkwnefhkjdeijdpiwqjfdwueig"}
-                  </p>
+                  <ul className="mt-4 text-sm text-gray-600 space-y-1">
+                    {(pkg?.features && pkg.features.length > 0
+                      ? pkg.features
+                      : ["sdlmlkwnefhkjdeijdpiwqjfdwueig"]
+                    ) // fallback array
+                      .map((item, idx) => (
+                        <li key={idx} className="flex items-center gap-2">
+                          <FaCheck className="text-[#6e9853]" />
+                          {item}
+                        </li>
+                      ))}
+                  </ul>
                 </div>
               </div>
 

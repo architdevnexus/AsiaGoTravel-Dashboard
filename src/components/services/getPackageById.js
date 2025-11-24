@@ -1,6 +1,6 @@
 export const getPackageById = async (id) => {
   try {
-    const res = await fetch(`http://194.238.18.1:3005/api/allPackage/${id}`, {
+    const res = await fetch(`https://www.backend.ghardekhoapna.com/api/allPackage/${id}`, {
       method: "GET",
       cache: "no-store",
     });

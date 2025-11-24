@@ -26,7 +26,7 @@ export const ResetPassword = () => {
 
     try {
       const res = await fetch(
-        `http://194.238.18.1:3005/api/reset-password/${token}`,
+        `https://www.backend.ghardekhoapna.com/api/reset-password/${token}`,
         {
           method: "POST",
           headers: {

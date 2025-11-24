@@ -1,6 +1,6 @@
 export const getAllBlogs = async () => {
   try {
-    const res = await fetch("http://194.238.18.1:3005/api/AllBlog", {
+    const res = await fetch("https://www.backend.ghardekhoapna.com/api/AllBlog", {
       method: "GET",
     });
 

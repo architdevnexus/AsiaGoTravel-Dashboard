@@ -19,6 +19,54 @@ const OverviewSection = ({ overviewData }) => {
 
   const tabs = ["Itinerary", "Inclusions", "Exclusions", "Summary"];
 
+
+  const handleUpdate = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const fd = new FormData();
+
+    // BASIC FIELDS
+    fd.append("title", form.title);
+    fd.append("description", form.description);
+
+    // PRICE
+    fd.append("priceDetails", JSON.stringify(form.priceDetails));
+
+    // ARRAY FIELDS
+    fd.append("inclusions", JSON.stringify(form.inclusions));
+    fd.append("exclusions", JSON.stringify(form.exclusions));
+    fd.append("summary", JSON.stringify(form.summary));
+
+    // ITINERARY
+    fd.append("itinerary", JSON.stringify(form.itinerary));
+
+    // API CALL
+    const res = await fetch(
+      `https://www.backend.ghardekhoapna.com/api/update/${overviewData?._id}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: fd,
+      }
+    );
+
+    if (!res.ok) {
+      alert("Failed to update!");
+      return;
+    }
+
+    alert("Package updated successfully!");
+
+  } catch (error) {
+    console.log(error);
+    alert("Error updating package");
+  }
+};
+
+
   const handleChange = (key, value) => {
     setForm({ ...form, [key]: value });
   };
@@ -229,9 +277,19 @@ const OverviewSection = ({ overviewData }) => {
             />
           </div>
 
+     
+
+
           <button className="flex items-center justify-center gap-2 w-full border border-[#3FA9F5] text-green-600 py-2 rounded-md hover:bg-green-50 transition">
             <FaWhatsapp /> Whatsapp
           </button>
+
+               <button
+  onClick={handleUpdate}
+  className="px-6 py-2 bg-blue-600 text-white rounded mt-6"
+>
+  Update Package
+</button>
         </div>
       </div>
     </section>

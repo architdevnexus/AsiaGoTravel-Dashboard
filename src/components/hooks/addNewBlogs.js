@@ -139,7 +139,7 @@ const addNewBlog = async () => {
     formData.append("filterTags", JSON.stringify(["Honeymoon", "family Package"]));
 
     // FETCH API CALL
-    const res = await fetch("http://194.238.18.1:3005/api/addPackage", {
+    const res = await fetch("https://www.backend.ghardekhoapna.com/api/addPackage", {
       method: "POST",
       body: formData,
     });

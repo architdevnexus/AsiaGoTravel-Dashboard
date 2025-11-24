@@ -23,7 +23,7 @@ export const PackageEdit = ({ slug }) => {
 
     try {
       const response = await fetch(
-        `http://194.238.18.1:3005/api/Delete/${item._id}`,
+        `https://www.backend.ghardekhoapna.com/api/Delete/${item._id}`,
         {
           method: "DELETE",
           headers: {

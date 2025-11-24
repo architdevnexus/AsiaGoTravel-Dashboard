@@ -1,7 +1,7 @@
 // services/getAllPackages.js
 export const getAllPackages = async () => {
   try {
-    const res = await fetch("http://194.238.18.1:3005/api/allPackage", {
+    const res = await fetch("https://www.backend.ghardekhoapna.com/api/allPackage", {
       method: "GET",
     });
 
@@ -13,4 +13,23 @@ export const getAllPackages = async () => {
     console.log("Error fetching packages:", error);
     return [];
   }
+};
+
+
+export const updatePackageById = async (id, formData) => {
+  const token = localStorage.getItem("token"); 
+
+  const response = await fetch(`https://www.backend.ghardekhoapna.com/api/update/${id}`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData, 
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update package");
+  }
+
+  return response.json();
 };
