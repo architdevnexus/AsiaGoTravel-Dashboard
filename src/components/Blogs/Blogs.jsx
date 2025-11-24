@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BlogsCard } from "./BlogsCard";
 import { getAllBlogs } from "../services/getAllBlogs";
-import { deleteBlogById } from "../services/deleteBlogById"; // ✅ import delete service
+import { deleteBlogById } from "../services/deleteBlogById";
 
 export const Blogs = () => {
   const [blogs, setBlogs] = useState([]);

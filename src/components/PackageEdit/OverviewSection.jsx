@@ -1,66 +1,60 @@
 "use client";
 import React, { useState } from "react";
-import { FaWhatsapp, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaWhatsapp } from "react-icons/fa";
 
 const OverviewSection = ({ overviewData }) => {
   const [activeTab, setActiveTab] = useState("Summary");
   const [isOpen, setIsOpen] = useState(false);
 
-  // Convert incoming overviewData into editable local state
+  // FIXED: always ensure arrays are arrays
   const [form, setForm] = useState({
     title: overviewData?.title || "",
     description: overviewData?.description || "",
-    itinerary: overviewData?.itinerary || [],
-    inclusions: overviewData?.inclusions || [],
-    exclusions: overviewData?.exclusions || [],
-    summary: overviewData?.summary || [],
-    priceDetails: overviewData?.priceDetails || {},
+    itinerary: Array.isArray(overviewData?.itinerary) ? overviewData.itinerary : [],
+    inclusions: Array.isArray(overviewData?.inclusions) ? overviewData.inclusions : [],
+    exclusions: Array.isArray(overviewData?.exclusions) ? overviewData.exclusions : [],
+    summary: Array.isArray(overviewData?.summary) ? overviewData.summary : [],
+    priceDetails: overviewData?.priceDetails || { amount: "" },
   });
 
   const tabs = ["Itinerary", "Inclusions", "Exclusions", "Summary"];
 
-  // Helper for updating fields
   const handleChange = (key, value) => {
     setForm({ ...form, [key]: value });
   };
 
-  // Add new items in list-based fields
   const addFieldItem = (key) => {
-    setForm({ ...form, [key]: [...form[key], ""] });
+    setForm({ ...form, [key]: [...(form[key] || []), ""] });
   };
 
-  // Edit list items
   const updateFieldItem = (key, index, value) => {
-    const updated = [...form[key]];
+    const updated = [...(form[key] || [])];
     updated[index] = value;
     setForm({ ...form, [key]: updated });
   };
 
-  // Add Day in itinerary
+  // Add new itinerary day
   const addItineraryDay = () => {
     setForm({
       ...form,
-      itinerary: [...form.itinerary, { title: "", details: [""] }],
+      itinerary: [...(form.itinerary || []), { title: "", details: [""] }],
     });
   };
 
-  // Update itinerary day title
   const updateItineraryTitle = (index, value) => {
-    const updated = [...form.itinerary];
+    const updated = [...(form.itinerary || [])];
     updated[index].title = value;
     setForm({ ...form, itinerary: updated });
   };
 
-  // Update itinerary detail point
   const updateItineraryDetail = (dayIndex, detailIndex, value) => {
-    const updated = [...form.itinerary];
+    const updated = [...(form.itinerary || [])];
     updated[dayIndex].details[detailIndex] = value;
     setForm({ ...form, itinerary: updated });
   };
 
-  // Add new detail line
   const addItineraryDetail = (i) => {
-    const updated = [...form.itinerary];
+    const updated = [...(form.itinerary || [])];
     updated[i].details.push("");
     setForm({ ...form, itinerary: updated });
   };
@@ -70,8 +64,6 @@ const OverviewSection = ({ overviewData }) => {
       <div className="grid md:grid-cols-3 gap-8">
         {/* LEFT CONTENT */}
         <div className="md:col-span-2">
-
-          {/* Editable Title */}
           <input
             type="text"
             className="text-2xl font-bold text-[#1B4965] mb-2 w-full border p-2 rounded"
@@ -79,7 +71,6 @@ const OverviewSection = ({ overviewData }) => {
             onChange={(e) => handleChange("title", e.target.value)}
           />
 
-          {/* Editable Description */}
           <textarea
             className="text-gray-700 leading-relaxed mb-5 border p-3 rounded w-full"
             rows={4}
@@ -87,7 +78,6 @@ const OverviewSection = ({ overviewData }) => {
             onChange={(e) => handleChange("description", e.target.value)}
           />
 
-          {/* TABS */}
           <div className="flex border-b mb-4 text-sm font-medium text-gray-600">
             {tabs.map((tab) => (
               <button
@@ -104,14 +94,13 @@ const OverviewSection = ({ overviewData }) => {
             ))}
           </div>
 
-          {/* ITINERARY TAB */}
+          {/* ITINERARY */}
           {activeTab === "Itinerary" && (
             <div>
-              {form.itinerary.map((day, index) => (
+              {(form.itinerary || []).map((day, index) => (
                 <div key={index} className="mb-6 p-4 border rounded shadow-sm">
                   <h4 className="font-bold">Day {index + 1}</h4>
 
-                  {/* Title */}
                   <input
                     className="w-full border p-2 rounded mt-2"
                     placeholder="Day title"
@@ -119,8 +108,7 @@ const OverviewSection = ({ overviewData }) => {
                     onChange={(e) => updateItineraryTitle(index, e.target.value)}
                   />
 
-                  {/* Details */}
-                  {day.details.map((detail, i) => (
+                  {(day.details || []).map((detail, i) => (
                     <input
                       key={i}
                       className="w-full border p-2 rounded mt-2"
@@ -132,7 +120,6 @@ const OverviewSection = ({ overviewData }) => {
                     />
                   ))}
 
-                  {/* Add details */}
                   <button
                     onClick={() => addItineraryDetail(index)}
                     className="mt-3 text-blue-600 underline"
@@ -156,12 +143,14 @@ const OverviewSection = ({ overviewData }) => {
           {/* INCLUSIONS */}
           {activeTab === "Inclusions" && (
             <div>
-              {form.inclusions.map((item, i) => (
+              {(form.inclusions || []).map((item, i) => (
                 <input
                   key={i}
                   className="w-full border p-2 rounded mb-2"
                   value={item}
-                  onChange={(e) => updateFieldItem("inclusions", i, e.target.value)}
+                  onChange={(e) =>
+                    updateFieldItem("inclusions", i, e.target.value)
+                  }
                 />
               ))}
 
@@ -177,12 +166,14 @@ const OverviewSection = ({ overviewData }) => {
           {/* EXCLUSIONS */}
           {activeTab === "Exclusions" && (
             <div>
-              {form.exclusions.map((item, i) => (
+              {(form.exclusions || []).map((item, i) => (
                 <input
                   key={i}
                   className="w-full border p-2 rounded mb-2"
                   value={item}
-                  onChange={(e) => updateFieldItem("exclusions", i, e.target.value)}
+                  onChange={(e) =>
+                    updateFieldItem("exclusions", i, e.target.value)
+                  }
                 />
               ))}
 
@@ -198,7 +189,7 @@ const OverviewSection = ({ overviewData }) => {
           {/* SUMMARY */}
           {activeTab === "Summary" && (
             <div>
-              {form.summary.map((item, i) => (
+              {(form.summary || []).map((item, i) => (
                 <input
                   key={i}
                   className="w-full border p-2 rounded mb-2"
@@ -217,7 +208,7 @@ const OverviewSection = ({ overviewData }) => {
           )}
         </div>
 
-        {/* RIGHT SIDEBAR (unchanged UI but editable values) */}
+        {/* RIGHT SIDEBAR */}
         <div className="bg-white shadow-md rounded-lg p-5 h-fit border border-gray-100">
           <div className="mb-5">
             <h3 className="text-gray-800 font-semibold">Starting From</h3>
@@ -225,7 +216,7 @@ const OverviewSection = ({ overviewData }) => {
             <input
               type="number"
               className="text-3xl font-bold text-gray-900 mt-2 w-full border p-2 rounded"
-              value={form.priceDetails.amount}
+              value={form.priceDetails?.amount || ""}
               onChange={(e) =>
                 setForm({
                   ...form,

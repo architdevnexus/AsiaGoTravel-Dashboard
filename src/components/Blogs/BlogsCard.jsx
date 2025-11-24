@@ -50,7 +50,7 @@ export const BlogsCard = ({
               {/* BUTTON SECTION */}
               <div className="w-full py-4 px-5 flex items-center justify-between">
                 {/* VIEW BUTTON */}
-                <Link to={`/all-blogs/${pkg?._id}`}>
+                <Link to={`/dashboard/all-blogs/${pkg?._id}`}>
                   <span className="flex items-center gap-4 bg-[#1B4965] text-white px-4 py-1.5 rounded-full hover:bg-[#357ca8] transition">
                     Learn More
                     <div className="w-8 rounded-full bg-white p-2 text-black">
@@ -61,7 +61,7 @@ export const BlogsCard = ({
 
                 {/* EDIT BUTTON */}
                 <Link
-                  to={`/edit-blog/${pkg?._id}`}
+                  to={`/dashboard/edit-blog/${pkg?._id}`}
                   className="p-2 rounded-full bg-green-600 text-white hover:bg-green-700 transition flex items-center justify-center"
                 >
                   <FiEdit size={18} />
