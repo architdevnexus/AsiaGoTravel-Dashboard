@@ -52,7 +52,6 @@ export const BlogsCard = ({
 
               {/* Buttons Section */}
               <div className="flex items-center justify-between px-5 py-4">
-                
                 {/* Learn More */}
                 <Link to={`/all-packages/${pkg?._id}`}>
                   <span className="flex cursor-pointer items-center gap-8 bg-[#1B4965] text-white px-4 py-1.5 rounded-full hover:bg-[#357ca8] transition">
@@ -65,23 +64,21 @@ export const BlogsCard = ({
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-3">
-                  <button
+                  {/* <button
                     onClick={() => onEdit(pkg)}
                     className="bg-yellow-400 text-white p-2 rounded-full hover:bg-yellow-500"
                   >
                     <FaRegEdit size={16} />
+                  </button> */}
+
+                  <button
+                    onClick={() => onDelete(pkg)}
+                    className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                  >
+                    <FaTrashAlt size={16} />
                   </button>
-
-              <button
-  onClick={() => onDelete(pkg)}
-  className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
->
-  <FaTrashAlt size={16} />
-</button>
-
                 </div>
               </div>
-
             </div>
           ))
         ) : (

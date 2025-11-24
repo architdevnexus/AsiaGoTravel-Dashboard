@@ -182,7 +182,8 @@ export const Login = () => {
       {/* FORGOT PASSWORD MODAL */}
       {/* -------------------------- */}
       {forgotOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
+       <div className="fixed inset-0 bg-black/20 backdrop-blur-md flex justify-center items-center">
+
           <div className="bg-white p-6 rounded-xl shadow-lg w-[90%] max-w-sm">
             <h2 className="text-xl font-semibold mb-4">Forgot Password</h2>
 
