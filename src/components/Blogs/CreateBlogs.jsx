@@ -9,8 +9,9 @@ import Color from "@tiptap/extension-color";
 import { useParams } from "react-router-dom";
 
 const CreateBlogs = () => {
-  const {id} = useParams;
-  console.log('ejhfeh', id)
+  const { id } = useParams();   // <-- FIXED
+  console.log("Blog ID:", id);
+
   const [title, setTitle] = useState("");
   const [featureImage, setFeatureImage] = useState(null);
 
@@ -26,24 +27,20 @@ const CreateBlogs = () => {
     content: "",
   });
 
-  // Content Image Upload Handler
+  // Handle editor image upload
   const handleEditorImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = () => {
-      const src = reader.result;
-      editor.chain().focus().setImage({ src }).run();
+      editor.chain().focus().setImage({ src: reader.result }).run();
     };
-
     reader.readAsDataURL(file);
   };
 
-  // Feature Image Upload Handler
-  const handleFeatureImage = (e) => {
-    setFeatureImage(e.target.files[0]);
-  };
+  // Handle feature image
+  const handleFeatureImage = (e) => setFeatureImage(e.target.files[0]);
 
   // Submit Blog API
   const handleSubmit = async () => {
@@ -63,15 +60,25 @@ const CreateBlogs = () => {
       formData.append("featureImage", featureImage);
     }
 
+    // ✅ Get token from localStorage
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("No token found! Login first.");
+      return;
+    }
+
     try {
-      const res = await fetch("https://www.backend.ghardekhoapna.com/api/blogPost", {
-        method: "POST",
-        headers: {
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWFmNzlhZGVjZTZmYzExZjY4MTdmYiIsImlhdCI6MTc2MzQ2NTM1OCwiZXhwIjoxNzY0MDcwMTU4fQ.LI-3mtCXphs3RW33-nwT4Jxvdx_aPnieqSQU1rK68sc",
-        },
-        body: formData,
-      });
+      const res = await fetch(
+        "https://www.backend.ghardekhoapna.com/api/blogPost",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ Dynamic token
+          },
+          body: formData, // Must be FormData — no content-type needed
+        }
+      );
 
       const data = await res.json();
       console.log("Response:", data);
@@ -82,7 +89,7 @@ const CreateBlogs = () => {
         alert("Error: " + data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       alert("Something went wrong!");
     }
   };

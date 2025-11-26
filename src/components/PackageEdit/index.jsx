@@ -22,16 +22,23 @@ export const PackageEdit = ({ slug }) => {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(
-        `https://www.backend.ghardekhoapna.com/api/Delete/${item._id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MTVhOWQ3NzkwMDMyOTQwYTYzMmVjYyIsImlhdCI6MTc2MzM2MDMzNCwiZXhwIjoxNzYzOTY1MTM0fQ.J-tJAw5LjWXmShylUXjGR8EMj02NQxR3EGypYdlhWNY",
-          },
-        }
-      );
+ const token = typeof window !== "undefined" && localStorage.getItem("token");
+
+if (!token) {
+  console.error("No token found in localStorage");
+  return;
+}
+
+const response = await fetch(
+  `https://www.backend.ghardekhoapna.com/api/package/delete/${item._id}`,
+  {
+    method: "DELETE", 
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
 
       if (!response.ok) {
         throw new Error("Delete failed");
