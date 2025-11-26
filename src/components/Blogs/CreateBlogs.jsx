@@ -9,11 +9,11 @@ import Color from "@tiptap/extension-color";
 import { useParams } from "react-router-dom";
 
 const CreateBlogs = () => {
-  const { id } = useParams();   // <-- FIXED
-  console.log("Blog ID:", id);
+  const { id } = useParams();
 
   const [title, setTitle] = useState("");
   const [featureImage, setFeatureImage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -27,7 +27,6 @@ const CreateBlogs = () => {
     content: "",
   });
 
-  // Handle editor image upload
   const handleEditorImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -39,10 +38,8 @@ const CreateBlogs = () => {
     reader.readAsDataURL(file);
   };
 
-  // Handle feature image
   const handleFeatureImage = (e) => setFeatureImage(e.target.files[0]);
 
-  // Submit Blog API
   const handleSubmit = async () => {
     if (!title) return alert("Enter Blog Title");
     if (!editor) return alert("Editor not ready");
@@ -60,23 +57,20 @@ const CreateBlogs = () => {
       formData.append("featureImage", featureImage);
     }
 
-    // ✅ Get token from localStorage
     const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("No token found! Login first.");
-      return;
-    }
+    if (!token) return alert("No token found! Login first.");
 
     try {
+      setLoading(true);
+
       const res = await fetch(
         "https://www.backend.ghardekhoapna.com/api/blogPost",
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`, // ✅ Dynamic token
+            Authorization: `Bearer ${token}`,
           },
-          body: formData, // Must be FormData — no content-type needed
+          body: formData,
         }
       );
 
@@ -91,6 +85,8 @@ const CreateBlogs = () => {
     } catch (error) {
       console.error(error);
       alert("Something went wrong!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -123,17 +119,14 @@ const CreateBlogs = () => {
         <button onClick={() => editor.chain().focus().toggleItalic().run()} className="px-3 py-1 border rounded">I</button>
         <button onClick={() => editor.chain().focus().toggleStrike().run()} className="px-3 py-1 border rounded">S</button>
 
-        {/* Headings */}
         <button onClick={() => editor.chain().focus().setHeading({ level: 1 }).run()} className="px-3 py-1 border rounded">H1</button>
         <button onClick={() => editor.chain().focus().setHeading({ level: 2 }).run()} className="px-3 py-1 border rounded">H2</button>
         <button onClick={() => editor.chain().focus().setHeading({ level: 3 }).run()} className="px-3 py-1 border rounded">H3</button>
 
-        {/* Alignment */}
         <button onClick={() => editor.chain().focus().setTextAlign("left").run()} className="px-3 py-1 border rounded">Left</button>
         <button onClick={() => editor.chain().focus().setTextAlign("center").run()} className="px-3 py-1 border rounded">Center</button>
         <button onClick={() => editor.chain().focus().setTextAlign("right").run()} className="px-3 py-1 border rounded">Right</button>
 
-        {/* Link */}
         <button
           onClick={() => {
             const url = prompt("Enter link URL:");
@@ -144,7 +137,6 @@ const CreateBlogs = () => {
           Link
         </button>
 
-        {/* Color Picker */}
         <input
           type="color"
           onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
@@ -152,13 +144,13 @@ const CreateBlogs = () => {
         />
       </div>
 
-      {/* Editor Image Upload Button */}
+      {/* Add Image in Editor */}
       <label className="bg-green-600 cursor-pointer text-white px-4 py-2 rounded mb-3 inline-block">
         Add Image in Content
         <input type="file" accept="image/*" hidden onChange={handleEditorImageUpload} />
       </label>
 
-      {/* Text Editor */}
+      {/* Editor */}
       <div className="border p-3 rounded bg-white min-h-[250px]">
         <EditorContent editor={editor} />
       </div>
@@ -166,9 +158,17 @@ const CreateBlogs = () => {
       {/* Submit Button */}
       <button
         onClick={handleSubmit}
-        className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
+        disabled={loading}
+        className="mt-4 bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2 justify-center disabled:bg-blue-400"
       >
-        Submit Blog
+        {loading ? (
+          <>
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            Submitting...
+          </>
+        ) : (
+          "Submit Blog"
+        )}
       </button>
     </div>
   );
