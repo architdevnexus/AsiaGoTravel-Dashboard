@@ -51,7 +51,7 @@ export const Login = () => {
       }
 
       setLoading(false);
-      navigate("/dashboard");
+      navigate("/dashboard/package-management");
 
     } catch (error) {
       console.error("Login failed:", error);

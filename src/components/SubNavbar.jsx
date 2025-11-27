@@ -33,7 +33,7 @@ export const SubNavbar = () => {
       </div>
 
       <div className="flex gap-4 items-center relative" ref={dropdownRef}>
-        <FaBell className="w-10 h-6 cursor-pointer" />
+        {/* <FaBell className="w-10 h-6 cursor-pointer" /> */}
 
         {/* Person Icon with Dropdown */}
         <div className="relative">

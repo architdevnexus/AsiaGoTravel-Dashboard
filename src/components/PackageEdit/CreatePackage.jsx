@@ -2,58 +2,33 @@ import React, { useState } from "react";
 
 const AddPackage = () => {
   const [formData, setFormData] = useState({
+    tripCategory: "DomesticTrips", // Default selection
     title: "",
     location: "",
     days: "",
     nights: "",
     overview: "",
-    categoryMain: "",
-    categorySub: "",
-    price: "",
-    currency: "",
-    pickupDrop: "",
     features: "",
     inclusions: "",
     exclusions: "",
-    priceDetails: "",
-    tags: "",
     summary: "",
-    durationInNights: "",
     rating: "",
-    famousDestinations: "",
-    minBudget: "",
-    maxBudget: "",
-    filterTags: "",
-    searchSource: "",
-    searchDestination: "",
-    searchDepartureDate: "",
-    searchRooms: "",
-    searchAdults: "",
-    searchChildren: "",
-    overviewCategoryNames: "",
-    itinerary: [{ day: "", title: "", description: "" }],
-    images: [],
+    itinerary: [{ day: "Day 1", title: "", description: "" }], // default Day 1
     icons: [],
-    overviewCategoryIcons: [],
+    overviewImages: [],
   });
 
   // GENERAL INPUT HANDLER
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // MULTIPLE FILE HANDLERS
-  const handleImages = (e) =>
-    setFormData({ ...formData, images: [...e.target.files] });
+  // FILE HANDLERS
+  const handleOverviewImages = (e) =>
+    setFormData({ ...formData, overviewImages: [...e.target.files] });
 
   const handleIcons = (e) =>
     setFormData({ ...formData, icons: [...e.target.files] });
-
-  const handleOverviewCategoryIcons = (e) =>
-    setFormData({ ...formData, overviewCategoryIcons: [...e.target.files] });
 
   // ITINERARY HANDLERS
   const handleItineraryChange = (index, e) => {
@@ -63,11 +38,12 @@ const AddPackage = () => {
   };
 
   const addItinerary = () => {
+    const nextDayNumber = formData.itinerary.length + 1;
     setFormData({
       ...formData,
       itinerary: [
         ...formData.itinerary,
-        { day: "", title: "", description: "" },
+        { day: `Day ${nextDayNumber}`, title: "", description: "" }, // auto Day n
       ],
     });
   };
@@ -75,208 +51,284 @@ const AddPackage = () => {
   const removeItinerary = (index) => {
     const copy = [...formData.itinerary];
     copy.splice(index, 1);
-    setFormData({ ...formData, itinerary: copy });
+    // update remaining day numbers
+    const updatedItinerary = copy.map((item, i) => ({
+      ...item,
+      day: `Day ${i + 1}`,
+    }));
+    setFormData({ ...formData, itinerary: updatedItinerary });
   };
 
-  // -------------------------
-  // API SUBMIT FUNCTION
-  // -------------------------
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
+  try {
     const payload = new FormData();
 
-    // SIMPLE FIELDS
-    payload.append("title", formData.title);
-    payload.append("location", formData.location);
-    payload.append("overview", formData.overview);
-    payload.append("price", formData.price);
-    payload.append("currency", formData.currency);
-    payload.append("pickupDrop", formData.pickupDrop);
-    payload.append("durationInNights", formData.durationInNights);
-    payload.append("rating", formData.rating);
+    // Trip category
+    payload.append("tripCategory", formData.tripCategory);
 
-    // JSON FIELDS
-    payload.append("tripDuration", JSON.stringify({ 
-      days: formData.days, 
-      nights: formData.nights 
-    }));
+    // Build Packages JSON (as in your curl)
+    const packagesJSON = [
+      {
+        subTripCategory: { main: "honeymoonTrip" },
+        tripDuration: {
+          days: Number(formData.days),
+          nights: Number(formData.nights),
+        },
+        title: formData.title,
+        location: formData.location,
+        overviewCategory: [
+          {
+            overview: formData.overview,
+            itinerary: formData.itinerary.map((item) => ({
+              ...item,
+              description: Array.isArray(item.description)
+                ? item.description
+                : item.description.split(",").map((d) => d.trim()),
+            })),
+            inclusions: formData.inclusions.split(",").map((i) => i.trim()),
+            exclusions: formData.exclusions.split(",").map((i) => i.trim()),
+            summary: formData.summary.split(",").map((s) => s.trim()),
+          },
+        ],
+        priceDetails: [{ type: "Double", originalPrice: 1200, discountedPrice: 999 }],
+        rating: Number(formData.rating),
+        features: formData.features.split(",").map((f) => f.trim()),
+        icons: formData.iconsList || [
+          { name: "Running" },
+          { name: "DN" },
+          { name: "AAOI" },
+          { name: "car" },
+        ],
+        isActive: true,
+      },
+    ];
 
-    payload.append(
-      "tripCategory",
-      JSON.stringify({
-        main: formData.categoryMain,
-        sub: formData.categorySub,
-      })
-    );
+    payload.append("Packages", JSON.stringify(packagesJSON));
 
-    payload.append("features", JSON.stringify(formData.features.split(",")));
-    payload.append("inclusions", JSON.stringify(formData.inclusions.split(",")));
-    payload.append("exclusions", JSON.stringify(formData.exclusions.split(",")));
+    // Attach files
+    formData.overviewImages.forEach((file) => payload.append("overviewImages", file));
+    formData.icons.forEach((file) => payload.append("icons", file));
 
-    payload.append("priceDetails", formData.priceDetails);
-    payload.append("tags", JSON.stringify(formData.tags.split(",")));
-    payload.append("summary", JSON.stringify(formData.summary.split(",")));
-    payload.append(
-      "famousDestinations",
-      JSON.stringify(formData.famousDestinations.split(","))
-    );
+    // Get token from localStorage
+    const token = localStorage.getItem("refreshToken");
 
-    payload.append(
-      "budget",
-      JSON.stringify({
-        min: formData.minBudget,
-        max: formData.maxBudget,
-      })
-    );
+    // Send request
+    const response = await fetch("https://backend.ghardekhoapna.com/api/addPackage", {
+      method: "POST",
+      headers: {
+        // Only include Authorization or Cookie if backend expects it
+        Cookie: `refreshToken=${token}`,
+      },
+      body: payload,
+    });
 
-    payload.append("filterTags", JSON.stringify(formData.filterTags.split(",")));
+    const result = await response.json();
+    console.log("API Response ->", result);
 
-    payload.append(
-      "searchDetails",
-      JSON.stringify({
-        source: formData.searchSource,
-        destination: formData.searchDestination,
-        departureDate: formData.searchDepartureDate,
-        rooms: formData.searchRooms,
-        adults: formData.searchAdults,
-        children: formData.searchChildren,
-      })
-    );
+    if (response.ok) alert("Package added successfully!");
+    else alert(`Failed to add package: ${result.message}`);
+  } catch (err) {
+    console.error(err);
+    alert("Error submitting package");
+  }
+};
 
-    payload.append(
-      "overviewCategoryIcons",
-      JSON.stringify(
-        formData.overviewCategoryNames.split(",").map((name) => ({ name }))
-      )
-    );
-
-    payload.append("itinerary", JSON.stringify(formData.itinerary));
-
-    // MULTIPLE FILES
-    formData.images.forEach((img) => payload.append("images", img));
-    formData.icons.forEach((icon) => payload.append("icons", icon));
-    formData.overviewCategoryIcons.forEach((file) =>
-      payload.append("overviewCategoryIcons", file)
-    );
-
-    try {
-      const response = await fetch(
-        "https://www.backend.ghardekhoapna.com/api/addPackage",
-        {
-          method: "POST",
-          body: payload,
-        }
-      );
-
-      const data = await response.json();
-      console.log("API Response:", data);
-
-      if (response.ok) {
-        alert("Package added successfully!");
-      } else {
-        alert("Failed to add package");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error while submitting package");
-    }
-  };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Add New Package</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
 
-        {/* BASIC FIELDS */}
-        <input name="title" placeholder="Title" className="border p-2 w-full" onChange={handleChange} />
-        <input name="location" placeholder="Location" className="border p-2 w-full" onChange={handleChange} />
+        {/* TRIP CATEGORY DROPDOWN */}
+        <div>
+          <label className="font-semibold">Trip Category</label>
+          <select
+            name="tripCategory"
+            onChange={(e) =>
+              setFormData({ ...formData, tripCategory: e.target.value })
+            }
+            className="border p-2 w-full"
+            value={formData.tripCategory}
+          >
+            <option value="DomesticTrips">Domestic Trips</option>
+            <option value="InternationalTrips">International Trips</option>
+          </select>
+        </div>
+
+        {/* BASIC INFO */}
+        <div>
+          <label className="font-semibold">Title</label>
+          <input
+            name="title"
+            placeholder="Title"
+            onChange={handleChange}
+            className="border p-2 w-full"
+          />
+        </div>
+
+        <div>
+          <label className="font-semibold">Location</label>
+          <input
+            name="location"
+            placeholder="Location"
+            onChange={handleChange}
+            className="border p-2 w-full"
+          />
+        </div>
 
         {/* TRIP DURATION */}
         <div className="grid grid-cols-2 gap-4">
-          <input name="days" placeholder="Days" className="border p-2 w-full" onChange={handleChange} />
-          <input name="nights" placeholder="Nights" className="border p-2 w-full" onChange={handleChange} />
+          <div>
+            <label className="font-semibold">Days</label>
+            <input
+              name="days"
+              placeholder="Days"
+              onChange={handleChange}
+              className="border p-2 w-full"
+            />
+          </div>
+          <div>
+            <label className="font-semibold">Nights</label>
+            <input
+              name="nights"
+              placeholder="Nights"
+              onChange={handleChange}
+              className="border p-2 w-full"
+            />
+          </div>
         </div>
 
-        <textarea name="overview" placeholder="Overview" className="border p-2 w-full" rows="3" onChange={handleChange} />
-
-        {/* TRIP CATEGORY */}
-        <div className="grid grid-cols-2 gap-4">
-          <input name="categoryMain" placeholder="Category Main" className="border p-2 w-full" onChange={handleChange} />
-          <input name="categorySub" placeholder="Category Sub" className="border p-2 w-full" onChange={handleChange} />
+        <div>
+          <label className="font-semibold">Overview</label>
+          <textarea
+            name="overview"
+            placeholder="Overview"
+            onChange={handleChange}
+            className="border p-2 w-full"
+          />
         </div>
-
-        {/* PRICE */}
-        <input name="price" placeholder="Price" className="border p-2 w-full" onChange={handleChange} />
-        <input name="currency" placeholder="Currency" className="border p-2 w-full" onChange={handleChange} />
-
-        <input name="pickupDrop" placeholder="Pickup Drop" className="border p-2 w-full" onChange={handleChange} />
 
         {/* ARRAYS */}
-        <textarea name="features" placeholder="Features (comma separated)" className="border p-2 w-full" onChange={handleChange}></textarea>
-        <textarea name="inclusions" placeholder="Inclusions (comma separated)" className="border p-2 w-full" onChange={handleChange}></textarea>
-        <textarea name="exclusions" placeholder="Exclusions (comma separated)" className="border p-2 w-full" onChange={handleChange}></textarea>
+        <div>
+          <label className="font-semibold">Features (comma separated)</label>
+          <textarea
+            name="features"
+            placeholder="Features"
+            onChange={handleChange}
+            className="border p-2 w-full"
+          />
+        </div>
 
-        {/* PRICE DETAILS JSON */}
-        <textarea name="priceDetails" placeholder="Price Details JSON" className="border p-2 w-full" rows="3" onChange={handleChange}></textarea>
+        <div>
+          <label className="font-semibold">Inclusions (comma separated)</label>
+          <textarea
+            name="inclusions"
+            placeholder="Inclusions"
+            onChange={handleChange}
+            className="border p-2 w-full"
+          />
+        </div>
 
-        {/* TAGS */}
-        <input name="tags" placeholder="Tags (comma separated)" className="border p-2 w-full" onChange={handleChange} />
+        <div>
+          <label className="font-semibold">Exclusions (comma separated)</label>
+          <textarea
+            name="exclusions"
+            placeholder="Exclusions"
+            onChange={handleChange}
+            className="border p-2 w-full"
+          />
+        </div>
 
-        {/* SUMMARY */}
-        <textarea name="summary" placeholder="Summary (comma separated)" className="border p-2 w-full" onChange={handleChange}></textarea>
+        <div>
+          <label className="font-semibold">Summary (comma separated)</label>
+          <textarea
+            name="summary"
+            placeholder="Summary"
+            onChange={handleChange}
+            className="border p-2 w-full"
+          />
+        </div>
 
-        {/* SEARCH FIELDS */}
-        <input name="searchSource" placeholder="Search Source" className="border p-2 w-full" onChange={handleChange} />
-        <input name="searchDestination" placeholder="Search Destination" className="border p-2 w-full" onChange={handleChange} />
-        <input type="date" name="searchDepartureDate" className="border p-2 w-full" onChange={handleChange} />
-        <input name="searchRooms" placeholder="Rooms" className="border p-2 w-full" onChange={handleChange} />
-        <input name="searchAdults" placeholder="Adults" className="border p-2 w-full" onChange={handleChange} />
-        <input name="searchChildren" placeholder="Children" className="border p-2 w-full" onChange={handleChange} />
-
-        {/* OVERVIEW CATEGORY ICON NAMES */}
-        <input name="overviewCategoryNames" placeholder="Overview Category Names (,)" className="border p-2 w-full" onChange={handleChange} />
+        <div>
+          <label className="font-semibold">Rating</label>
+          <input
+            name="rating"
+            placeholder="Rating"
+            onChange={handleChange}
+            className="border p-2 w-full"
+          />
+        </div>
 
         {/* FILE UPLOADS */}
         <div>
-          <label>Upload Images</label>
-          <input type="file" multiple onChange={handleImages} />
+          <label className="font-semibold">Overview Images</label>
+          <input type="file" multiple onChange={handleOverviewImages} />
         </div>
 
         <div>
-          <label>Upload Icons</label>
+          <label className="font-semibold">Icons</label>
           <input type="file" multiple onChange={handleIcons} />
         </div>
 
-        <div>
-          <label>Upload Overview Category Icons</label>
-          <input type="file" multiple onChange={handleOverviewCategoryIcons} />
-        </div>
-
         {/* ITINERARY */}
-        <h3 className="text-lg font-semibold">Itinerary</h3>
-
-        {formData.itinerary.map((item, index) => (
-          <div key={index} className="border p-4 mb-4 rounded bg-gray-50">
-            <input name="day" placeholder="Day" className="border p-2 w-full mb-2" onChange={(e) => handleItineraryChange(index, e)} />
-            <input name="title" placeholder="Title" className="border p-2 w-full mb-2" onChange={(e) => handleItineraryChange(index, e)} />
-            <textarea name="description" placeholder="Description" className="border p-2 w-full" onChange={(e) => handleItineraryChange(index, e)}></textarea>
-
+        <h3 className="font-semibold mt-4">Itinerary</h3>
+        {formData.itinerary.map((item, i) => (
+          <div key={i} className="border p-3 rounded mb-3">
+            <div>
+              <label className="font-semibold">Day</label>
+              <input
+                name="day"
+                value={item.day}
+                onChange={(e) => handleItineraryChange(i, e)}
+                className="border p-2 w-full"
+              />
+            </div>
+            <div>
+              <label className="font-semibold">Title</label>
+              <input
+                name="title"
+                placeholder="Title"
+                onChange={(e) => handleItineraryChange(i, e)}
+                className="border p-2 w-full"
+              />
+            </div>
+            <div>
+              <label className="font-semibold">Description</label>
+              <textarea
+                name="description"
+                placeholder="Description"
+                onChange={(e) => handleItineraryChange(i, e)}
+                className="border p-2 w-full"
+              />
+            </div>
             {formData.itinerary.length > 1 && (
-              <button type="button" className="text-red-500 mt-2" onClick={() => removeItinerary(index)}>
+              <button
+                type="button"
+                onClick={() => removeItinerary(i)}
+                className="text-red-600 mt-2"
+              >
                 Remove Day
               </button>
             )}
           </div>
         ))}
 
-        <button type="button" className="px-4 py-2 bg-green-500 text-white rounded" onClick={addItinerary}>
+        <button
+          type="button"
+          onClick={addItinerary}
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
           + Add Day
         </button>
 
-        {/* SUBMIT BUTTON */}
-        <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 text-lg font-semibold">
+        {/* SUBMIT */}
+        <button
+          type="submit"
+          className="w-full bg-blue-700 text-white py-3 rounded-lg text-lg"
+        >
           Submit Package
         </button>
       </form>

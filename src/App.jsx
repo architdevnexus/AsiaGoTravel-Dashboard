@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 import { Login } from "./components/Login";
 import DashboardLayout from "./components/Navbar";
@@ -18,19 +18,19 @@ import "react-toastify/dist/ReactToastify.css";
 import AddPackage from "./components/PackageEdit/CreatePackage";
 
 function App() {
+  const location = useLocation();
+
   return (
     <>
-      {/* Toasts Globally Available */}
       <ToastContainer position="top-right" autoClose={2000} />
 
-      <SubNavbar />
+      {/* Hide SubNavbar on Login page */}
+      {location.pathname !== "/" && <SubNavbar />}
 
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* Protected Dashboard Routes */}
         <Route
           path="/dashboard"
           element={
@@ -50,9 +50,8 @@ function App() {
           <Route path="createblogs" element={<CreateBlogs />} />
         </Route>
 
-        {/* Protected Slug Page */}
         <Route
-          path="/all-packages/:id"
+          path="/all-packages/:id"  
           element={
             <ProtectedRoute>
               <PackageSlugPage />

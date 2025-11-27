@@ -19,7 +19,7 @@ export const getAllPackages = async () => {
 export const updatePackageById = async (id, formData) => {
   const token = localStorage.getItem("token"); 
 
-  const response = await fetch(`https://www.backend.ghardekhoapna.com/api/update/${id}`, {
+  const response = await fetch(`https://www.backend.ghardekhoapna.com/api/package/update/${id}`, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${token}`,

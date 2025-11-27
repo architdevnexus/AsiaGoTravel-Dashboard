@@ -48,7 +48,7 @@ const OverviewSection = ({ overviewData }) => {
 
       // API CALL
       const res = await fetch(
-        `https://www.backend.ghardekhoapna.com/api/update/${overviewData?._id}`,
+        `https://www.backend.ghardekhoapna.com/api/package/update/${overviewData?._id}`,
         {
           method: "PATCH",
           headers: {
