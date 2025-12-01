@@ -1,74 +1,35 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaWhatsapp } from "react-icons/fa";
 
 const OverviewSection = ({ overviewData }) => {
   const [activeTab, setActiveTab] = useState("Summary");
-  const [isOpen, setIsOpen] = useState(false);
 
-  // FIXED: always ensure arrays are arrays
+  // Get correct overview object
+  const overviewObj = overviewData?.overviewCategory?.[0] || {};
+
+  // Convert itinerary into editable structure
+  const formattedItinerary = Array.isArray(overviewObj?.itinerary)
+    ? overviewObj.itinerary.map((day) => ({
+        title: day.title || "",
+        details: Array.isArray(day.description) ? day.description : [],
+      }))
+    : [];
+
+  // Initialize form correctly
   const [form, setForm] = useState({
     title: overviewData?.title || "",
-    description: overviewData?.description || "",
-    itinerary: Array.isArray(overviewData?.itinerary)
-      ? overviewData.itinerary
-      : [],
-    inclusions: Array.isArray(overviewData?.inclusions)
-      ? overviewData.inclusions
-      : [],
-    exclusions: Array.isArray(overviewData?.exclusions)
-      ? overviewData.exclusions
-      : [],
-    summary: Array.isArray(overviewData?.summary) ? overviewData.summary : [],
-    priceDetails: overviewData?.priceDetails || { amount: "" },
+    description: overviewObj?.overview || "",
+    itinerary: formattedItinerary,
+    inclusions: overviewObj?.inclusions || [],
+    exclusions: overviewObj?.exclusions || [],
+    summary: overviewObj?.summary || [],
+    priceDetails: {
+      amount: overviewData?.priceDetails?.[0]?.originalPrice || "",
+    },
   });
 
   const tabs = ["Itinerary", "Inclusions", "Exclusions", "Summary"];
-
-  const handleUpdate = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const fd = new FormData();
-
-      // BASIC FIELDS
-      fd.append("title", form.title);
-      fd.append("description", form.description);
-
-      // PRICE
-      fd.append("priceDetails", JSON.stringify(form.priceDetails));
-
-      // ARRAY FIELDS
-      fd.append("inclusions", JSON.stringify(form.inclusions));
-      fd.append("exclusions", JSON.stringify(form.exclusions));
-      fd.append("summary", JSON.stringify(form.summary));
-
-      // ITINERARY
-      fd.append("itinerary", JSON.stringify(form.itinerary));
-
-      // API CALL
-      const res = await fetch(
-        `https://www.backend.ghardekhoapna.com/api/package/update/${overviewData?._id}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: fd,
-        }
-      );
-
-      if (!res.ok) {
-        alert("Failed to update!");
-        return;
-      }
-
-      alert("Package updated successfully!");
-    } catch (error) {
-      console.log(error);
-      alert("Error updating package");
-    }
-  };
 
   const handleChange = (key, value) => {
     setForm({ ...form, [key]: value });
@@ -88,25 +49,25 @@ const OverviewSection = ({ overviewData }) => {
   const addItineraryDay = () => {
     setForm({
       ...form,
-      itinerary: [...(form.itinerary || []), { title: "", details: [""] }],
+      itinerary: [...form.itinerary, { title: "", details: [""] }],
     });
   };
 
   const updateItineraryTitle = (index, value) => {
-    const updated = [...(form.itinerary || [])];
+    const updated = [...form.itinerary];
     updated[index].title = value;
     setForm({ ...form, itinerary: updated });
   };
 
   const updateItineraryDetail = (dayIndex, detailIndex, value) => {
-    const updated = [...(form.itinerary || [])];
+    const updated = [...form.itinerary];
     updated[dayIndex].details[detailIndex] = value;
     setForm({ ...form, itinerary: updated });
   };
 
-  const addItineraryDetail = (i) => {
-    const updated = [...(form.itinerary || [])];
-    updated[i].details.push("");
+  const addItineraryDetail = (index) => {
+    const updated = [...form.itinerary];
+    updated[index].details.push("");
     setForm({ ...form, itinerary: updated });
   };
 
@@ -148,10 +109,13 @@ const OverviewSection = ({ overviewData }) => {
           {/* ITINERARY */}
           {activeTab === "Itinerary" && (
             <div>
-              {(form.itinerary || []).map((day, index) => (
+              {form.itinerary.map((day, index) => (
                 <div key={index} className="mb-6 p-4 border rounded shadow-sm">
                   <h4 className="font-bold">Day {index + 1}</h4>
 
+                  <label className="text-sm font-semibold text-gray-700 mt-3 block">
+                    Day Title
+                  </label>
                   <input
                     className="w-full border p-2 rounded mt-2"
                     placeholder="Day title"
@@ -161,7 +125,10 @@ const OverviewSection = ({ overviewData }) => {
                     }
                   />
 
-                  {(day.details || []).map((detail, i) => (
+                  <label className="text-sm font-semibold text-gray-700 mt-3 block">
+                    Day Description
+                  </label>
+                  {day.details.map((detail, i) => (
                     <input
                       key={i}
                       className="w-full border p-2 rounded mt-2"
@@ -196,7 +163,7 @@ const OverviewSection = ({ overviewData }) => {
           {/* INCLUSIONS */}
           {activeTab === "Inclusions" && (
             <div>
-              {(form.inclusions || []).map((item, i) => (
+              {form.inclusions.map((item, i) => (
                 <input
                   key={i}
                   className="w-full border p-2 rounded mb-2"
@@ -219,7 +186,7 @@ const OverviewSection = ({ overviewData }) => {
           {/* EXCLUSIONS */}
           {activeTab === "Exclusions" && (
             <div>
-              {(form.exclusions || []).map((item, i) => (
+              {form.exclusions.map((item, i) => (
                 <input
                   key={i}
                   className="w-full border p-2 rounded mb-2"
@@ -242,7 +209,7 @@ const OverviewSection = ({ overviewData }) => {
           {/* SUMMARY */}
           {activeTab === "Summary" && (
             <div>
-              {(form.summary || []).map((item, i) => (
+              {form.summary.map((item, i) => (
                 <input
                   key={i}
                   className="w-full border p-2 rounded mb-2"
@@ -262,12 +229,9 @@ const OverviewSection = ({ overviewData }) => {
             </div>
           )}
         </div>
+
         {/* RIGHT SIDEBAR */}
-        <div
-          className="bg-white shadow-md rounded-lg p-5 border border-gray-100 
-            flex flex-col h-full min-h-[550px]"
-        >
-          {/* TOP CONTENT */}
+        <div className="bg-white shadow-md rounded-lg p-5 border border-gray-100 flex flex-col h-full min-h-[550px]">
           <div className="flex-1">
             <h3 className="text-gray-800 font-semibold">Starting From</h3>
 
@@ -290,14 +254,6 @@ const OverviewSection = ({ overviewData }) => {
               <FaWhatsapp /> Whatsapp
             </button>
           </div>
-
-          {/* BOTTOM FIXED BUTTON */}
-          <button
-            onClick={handleUpdate}
-            className="px-6 py-2 bg-blue-600 text-white rounded mt-6"
-          >
-            Update Package
-          </button>
         </div>
       </div>
     </section>

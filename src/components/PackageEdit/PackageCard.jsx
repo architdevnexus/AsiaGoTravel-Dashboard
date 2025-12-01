@@ -64,7 +64,7 @@ export const BlogsCard = ({
                 {/* ---------- BUTTONS ---------- */}
                 <div className="flex items-center justify-between px-5 py-4">
                   {/* Learn More */}
-                  <Link to={`/all-packages/${pkg?._id}`}>
+                  <Link to={`/dashboard/all-packages/${pkg?._id}`}>
                     <span className="flex cursor-pointer items-center gap-8 bg-[#1B4965] text-white px-4 py-1.5 rounded-full hover:bg-[#357ca8] transition">
                       Learn More
                       <div className="w-8 rounded-full bg-white p-2 text-black">

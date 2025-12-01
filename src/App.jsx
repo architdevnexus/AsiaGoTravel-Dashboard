@@ -48,16 +48,17 @@ function App() {
           <Route path="all-blogs/:id" element={<BlogsSlugPage />} />
           <Route path="edit-blog/:id" element={<EditBlog />} />
           <Route path="createblogs" element={<CreateBlogs />} />
-        </Route>
-
-        <Route
-          path="/all-packages/:id"  
+                  <Route
+          path="all-packages/:id"  
           element={
-            <ProtectedRoute>
+           
               <PackageSlugPage />
-            </ProtectedRoute>
+        
           }
         />
+        </Route>
+
+
       </Routes>
     </>
   );

@@ -1,44 +1,62 @@
 "use client";
 import React, { useState } from "react";
-import { FaChevronRight } from "react-icons/fa6";
+
 
 export const PackageProductPage = ({ images = [], title = "" }) => {
   const [editableTitle, setEditableTitle] = useState(title);
-  const [editableImages, setEditableImages] = useState(images);
+  const [editableImages, setEditableImages] = useState(images); // stores preview URLs
+  const [imageFiles, setImageFiles] = useState([]); // actual file objects
 
-  // Update image URL
-  const updateImage = (index, value) => {
-    const updated = [...editableImages];
-    updated[index] = value;
-    setEditableImages(updated);
+  // Handle file upload
+  const handleFileUpload = (index, file) => {
+    if (!file) return;
+
+    const previewURL = URL.createObjectURL(file);
+
+    const updatedPreview = [...editableImages];
+    updatedPreview[index] = previewURL;
+
+    const updatedFiles = [...imageFiles];
+    updatedFiles[index] = file;
+
+    setEditableImages(updatedPreview);
+    setImageFiles(updatedFiles);
   };
 
-  // Add new image field
+  // Add new upload field
   const addImage = () => {
     setEditableImages([...editableImages, ""]);
+    setImageFiles([...imageFiles, null]);
   };
 
   return (
     <div className="bg-gray-50 p-5 rounded-lg">
-
-      {/* Editable Title */}
+      {/* Label + Editable Title */}
+      <label className="block font-semibold text-gray-700 mb-1">
+        Package Title
+      </label>
       <input
         type="text"
-        className="text-xl font-semibold mb-3 border p-2 rounded w-full"
+        className="text-xl font-semibold mb-4 border p-2 rounded w-full"
         value={editableTitle}
         onChange={(e) => setEditableTitle(e.target.value)}
       />
 
-      {/* Image URL Inputs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+      {/* Image Upload Inputs */}
+      <label className="block font-semibold text-gray-700 mb-2">
+        Upload Images
+      </label>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
         {editableImages.map((img, i) => (
-          <input
-            key={i}
-            className="border p-2 rounded w-full"
-            placeholder={`Image URL ${i + 1}`}
-            value={img}
-            onChange={(e) => updateImage(i, e.target.value)}
-          />
+          <div key={i} className="flex flex-col gap-2">
+            <input
+              type="file"
+              accept="image/*"
+              className="border p-2 rounded w-full"
+              onChange={(e) => handleFileUpload(i, e.target.files[0])}
+            />
+          </div>
         ))}
 
         <button
@@ -51,7 +69,6 @@ export const PackageProductPage = ({ images = [], title = "" }) => {
 
       {/* Preview Section */}
       <div className="flex gap-3 overflow-x-auto">
-
         {/* Left Large Image */}
         {editableImages[0] && (
           <div className="relative w-[400px] h-[325px] rounded-lg overflow-hidden shrink-0">
@@ -92,11 +109,6 @@ export const PackageProductPage = ({ images = [], title = "" }) => {
             />
           </div>
         )}
-
-        {/* Arrow */}
-        <div className="flex items-center justify-center w-10 h-[250px] bg-white rounded-lg shadow cursor-pointer hover:bg-gray-100 transition shrink-0">
-          <FaChevronRight className="text-gray-600 text-lg" />
-        </div>
       </div>
     </div>
   );
