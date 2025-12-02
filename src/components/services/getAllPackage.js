@@ -17,19 +17,25 @@ export const getAllPackages = async () => {
 
 
 export const updatePackageById = async (id, formData) => {
-  const token = localStorage.getItem("token"); 
+  const token = localStorage.getItem("token");
 
-  const response = await fetch(`https://www.backend.ghardekhoapna.com/api/package/update/${id}`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData, 
-  });
+  const response = await fetch(
+    `https://backend.ghardekhoapna.com/api/package/update/${id}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData, // FormData MUST NOT have Content-Type
+    }
+  );
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Update API Error:", errorText);
     throw new Error("Failed to update package");
   }
 
   return response.json();
 };
+

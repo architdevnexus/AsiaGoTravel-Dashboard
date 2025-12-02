@@ -34,11 +34,12 @@ export default function TestimonialForm({ onClose, onSave, initialData }) {
       return;
     }
 
-    onSave(formData); // rating is now included
+    onSave(formData); 
   };
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40">
+   <div className="fixed inset-0 flex justify-center pt-10 items-center bg-black/40 backdrop-blur-md">
+
       <div className="bg-white w-[90%] md:w-[500px] rounded-xl p-6 shadow-xl">
 
         <h2 className="text-xl font-bold mb-4">

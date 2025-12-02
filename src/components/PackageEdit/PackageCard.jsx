@@ -16,7 +16,7 @@ export const BlogsCard = ({
         {packages?.length > 0 ? (
           packages.map((pkg, index) => {
             const firstImage =
-              pkg?.overviewCategory?.[0]?.images?.[0] || "/placeholder.jpg";
+              pkg?.overviewCategory?.[0]?.images?.[0]?.url || "/placeholder.jpg";
 
             return (
               <div
