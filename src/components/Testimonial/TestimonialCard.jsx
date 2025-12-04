@@ -18,12 +18,12 @@ export default function TestimonialCard({ item, onEdit, onDelete }) {
         </div>
       </div>
 
-      <p className="text-yellow-500 font-semibold">
+      <p className="text-yellow-500 pt-7    font-semibold">
   ⭐ {item.rating} / 5
 </p>
 
 
-      <div className="absolute top-4 right-4 flex gap-3">
+      <div className="absolute bottom-7 right-4 flex gap-3">
         <button onClick={() => onEdit(item)} className="text-yellow-500">
           <FaRegEdit size={18} />
         </button>

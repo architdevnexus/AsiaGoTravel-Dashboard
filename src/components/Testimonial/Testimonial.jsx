@@ -7,9 +7,6 @@ export default function Testimonials() {
   const [editingItem, setEditingItem] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // ---------------------------
-  // FETCH ALL TESTIMONIALS
-  // ---------------------------
   const fetchTestimonials = async () => {
     try {
       const res = await fetch("https://www.backend.ghardekhoapna.com/api/allTestimonials");

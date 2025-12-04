@@ -7,7 +7,6 @@ import { updatePackageById } from "../services/getAllPackage";
 
 const PackageSlugPage = () => {
   const { id } = useParams();
-
   const { loading: fetchLoading, packageData, refetch } = usePackageFetcher(id);
 
   const [loading, setLoading] = useState(false);
@@ -25,20 +24,18 @@ const PackageSlugPage = () => {
     excludes: "",
   });
 
+  // ⭐ Images + Icons State
   const [images, setImages] = useState([]);
-  const [icons, setIcons] = useState([]); 
-  const [thumbnail, setThumbnail] = useState(null);
+  const [icons, setIcons] = useState([]);
 
+  // ⭐ LOAD DATA
   useEffect(() => {
     if (!packageData) return;
 
-    // Parse tripDuration (string → JSON)
     let parsedDuration = { days: "", nights: "" };
     try {
       parsedDuration = JSON.parse(packageData.tripDuration);
-    } catch (e) {
-      console.log("Trip Duration parsing error");
-    }
+    } catch {}
 
     const overviewObj = packageData?.overviewCategory?.[0] || {};
 
@@ -48,21 +45,58 @@ const PackageSlugPage = () => {
       overview: overviewObj.overview || "",
       days: parsedDuration.days || "",
       nights: parsedDuration.nights || "",
-      price: packageData?.priceDetails?.[0]?.originalPrice || "",
+      price: packageData?.priceDetails?.[0]?.discountedPrice || "",
       category: packageData?.subTripCategory?.main || "",
       highlights: overviewObj?.summary?.join(", ") || "",
       includes: overviewObj?.inclusions?.join(", ") || "",
       excludes: overviewObj?.exclusions?.join(", ") || "",
     });
+
+    // ⭐ LOAD EXISTING IMAGES
+    const existingImages =
+      overviewObj?.images?.map((img) => ({
+        type: "existing",
+        url: img.url,
+      })) || [];
+
+    setImages(existingImages);
+
+    // ⭐ LOAD EXISTING ICONS FROM ROOT LEVEL (CORRECT)
+    const existingIcons =
+      packageData?.icons?.map((ic) => ({
+        type: "existing",
+        url: ic.url,
+        name: ic.name,
+      })) || [];
+
+    setIcons(existingIcons);
   }, [packageData]);
 
+  // ⭐ Basic input handler
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // ⭐ ADD NEW IMAGES
+  const handleOverviewImages = (e) => {
+    const uploaded = [...e.target.files].map((file) => ({
+      type: "new",
+      file,
+    }));
+    setImages((prev) => [...prev, ...uploaded]);
+  };
+
+  // ⭐ DELETE IMAGE
+  const deleteImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // ⭐ DELETE ICON
+  const deleteIcon = (index) => {
+    setIcons((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // ⭐ SUBMIT UPDATE
   const handleUpdate = async () => {
     setLoading(true);
 
@@ -72,12 +106,11 @@ const PackageSlugPage = () => {
       // Basic fields
       fd.append("title", form.title);
       fd.append("location", form.location);
-      fd.append("rating", form.rating || "4.9");
+      fd.append("rating", "4.9");
       fd.append("subTripCategoryMain", form.category);
       fd.append("days", form.days);
       fd.append("nights", form.nights);
 
-      // JSON FIELDS
       fd.append(
         "features",
         JSON.stringify(form.highlights.split(",").map((i) => i.trim()))
@@ -89,13 +122,43 @@ const PackageSlugPage = () => {
           {
             type: "Double",
             originalPrice: Number(form.price),
-            discountedPrice: Number(form.price) - 5000,
+            discountedPrice: Number(form.price),
             currency: "$",
             note: "Per Person",
           },
         ])
       );
 
+      // ⭐ MERGE IMAGES
+      const finalImagesArray = [
+        ...images
+          .filter((img) => img.type === "existing")
+          .map((img) => ({ url: img.url })),
+        ...images
+          .filter((img) => img.type === "new")
+          .map((img) => ({
+            url: "",
+            fileName: img.file.name,
+          })),
+      ];
+
+      // ⭐ MERGE ICONS (ROOT LEVEL)
+      const finalIconsArray = [
+        ...icons
+          .filter((ic) => ic.type === "existing")
+          .map((ic) => ({
+            url: ic.url,
+            name: ic.name,
+          })),
+        ...icons
+          .filter((ic) => ic.type === "new")
+          .map((ic) => ({
+            url: "",
+            name: ic.file.name,
+          })),
+      ];
+
+      // ⭐ OVERVIEW CATEGORY (images only)
       fd.append(
         "overviewCategory",
         JSON.stringify([
@@ -111,28 +174,32 @@ const PackageSlugPage = () => {
             inclusions: form.includes.split(",").map((i) => i.trim()),
             exclusions: form.excludes.split(",").map((i) => i.trim()),
             summary: form.highlights.split(",").map((i) => i.trim()),
+            images: finalImagesArray,
           },
         ])
       );
 
-      // Multiple images
-      if (images.length > 0) {
-        images.forEach((img) => fd.append("overviewImages", img));
-      }
+      // ⭐ SEND ICONS SEPARATELY (ROOT LEVEL)
+      fd.append("iconsData", JSON.stringify(finalIconsArray));
 
-      // ICON IMAGES
-      if (icons?.length > 0) {
-        icons.forEach((ic) => fd.append("icons", ic));
-      }
+      // ⭐ UPLOAD NEW IMAGES
+      images
+        .filter((img) => img.type === "new")
+        .forEach((img) => fd.append("overviewImages", img.file));
 
-      // SEND PATCH REQUEST
+      // ⭐ UPLOAD NEW ICONS
+      icons
+        .filter((ic) => ic.type === "new")
+        .forEach((ic) => fd.append("icons", ic.file));
+
       await updatePackageById(id, fd);
 
       alert("Package Updated Successfully!");
       refetch();
-    } catch (error) {
-      console.error(error);
-      alert("Update Failed");
+
+    } catch (err) {
+      console.error(err);
+      alert("Update failed!");
     }
 
     setLoading(false);
@@ -143,101 +210,142 @@ const PackageSlugPage = () => {
 
   return (
     <div className="p-5 pt-20">
-      {/* FIXED → overviewCategory[0].images */}
+
       <PackageProductPage
-     images={packageData?.overviewCategory?.[0]?.images?.map(img => img.url) || []}
-        title={packageData?.title}
+        images={packageData?.overviewCategory?.[0]?.images?.map((img) => img.url) || []}
+        title={packageData.title}
       />
 
       <OverviewSection overviewData={packageData} />
-   {/* OVERVIEW IMAGES UPLOAD */}
-<div className="mb-6">
-  <label className="block text-gray-700 font-medium mb-2">
-    Upload Overview Images
-  </label>
 
-  <div className="border-2 border-dashed border-gray-300 rounded-lg p-5 cursor-pointer hover:border-blue-500 transition">
-    <input
-      type="file"
-      multiple
-      id="overviewImages"
-      onChange={(e) => setImages([...e.target.files])}
-      className="hidden"
-    />
+      {/* ⭐ OVERVIEW IMAGES SECTION */}
+      <div className="mb-6">
+        <label className="block text-gray-700 font-medium mb-2">Overview Images</label>
 
-    <label
-      htmlFor="overviewImages"
-      className="flex flex-col items-center justify-center gap-2 cursor-pointer"
-    >
-      <span className="text-gray-500">Click to upload or drag & drop</span>
-      <span className="text-sm text-gray-400">(You can select multiple images)</span>
-    </label>
-  </div>
+        {/* Upload Box */}
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-5 cursor-pointer hover:border-blue-500 transition">
+          <input
+            type="file"
+            multiple
+            id="overviewImages"
+            onChange={handleOverviewImages}
+            className="hidden"
+          />
 
-  {/* Preview */}
-  {images.length > 0 && (
-    <div className="flex gap-3 mt-4 flex-wrap">
-      {Array.from(images).map((img, i) => (
-        <img
-          key={i}
-          src={URL.createObjectURL(img)}
-          alt="preview"
-          className="w-24 h-24 object-cover rounded-md shadow"
-        />
-      ))}
-    </div>
-  )}
-</div>
+          <label
+            htmlFor="overviewImages"
+            className="flex flex-col items-center justify-center gap-2 cursor-pointer"
+          >
+            <span className="text-gray-500">Click to upload or drag & drop</span>
+            <span className="text-sm text-gray-400">(Select multiple images)</span>
+          </label>
+        </div>
 
-{/* ICONS UPLOAD */}
-<div className="mb-6">
-  <label className="block text-gray-700 font-medium mb-2">
-    Upload Icons
-  </label>
+        {/* Preview */}
+        {images.length > 0 && (
+          <div className="flex gap-3 mt-4 flex-wrap">
+            {images.map((img, i) => (
+              <div key={i} className="relative">
+                <img
+                  src={
+                    img.type === "existing"
+                      ? img.url
+                      : URL.createObjectURL(img.file)
+                  }
+                  className="w-24 h-24 object-cover rounded-md shadow"
+                />
+                <button
+                  onClick={() => deleteImage(i)}
+                  className="absolute top-0 right-0 bg-red-600 text-white text-xs px-2 py-1 rounded"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
-  <div className="border-2 border-dashed border-gray-300 rounded-lg p-5 cursor-pointer hover:border-green-500 transition">
-    <input
-      type="file"
-      multiple
-      id="packageIcons"
-      onChange={(e) => setIcons([...e.target.files])}
-      className="hidden"
-    />
-
-    <label
-      htmlFor="packageIcons"
-      className="flex flex-col items-center justify-center gap-2 cursor-pointer"
-    >
-      <span className="text-gray-500">Click to upload or drag & drop</span>
-      <span className="text-sm text-gray-400">(Upload up to 3 icons)</span>
-    </label>
-  </div>
-
-  {/* Preview */}
-  {icons?.length > 0 && (
-    <div className="flex gap-3 mt-4 flex-wrap">
-      {Array.from(icons).map((icon, i) => (
-        <img
-          key={i}
-          src={URL.createObjectURL(icon)}
-          alt="icon preview"
-          className="w-16 h-16 object-contain rounded-md shadow bg-white p-2"
-        />
-      ))}
-    </div>
-  )}
-</div>
-
-
-      <div className="">
+        {/* Add Button */}
         <button
-          onClick={handleUpdate}
-          disabled={loading}
-          className="mt-5 bg-blue-600 text-white px-6 py-2 rounded"
+          onClick={() => document.getElementById("overviewImages").click()}
+          className="mt-3 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
         >
-          {loading ? "Updating..." : "Update Package"}
+          ➕ Add Images
         </button>
       </div>
+
+      {/* ⭐ ICONS SECTION */}
+      <div className="mb-6">
+        <label className="block text-gray-700 font-medium mb-2">Icons</label>
+
+        {/* Upload Box */}
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-5 cursor-pointer hover:border-green-500 transition">
+          <input
+            type="file"
+            multiple
+            id="packageIcons"
+            onChange={(e) =>
+              setIcons((prev) => [
+                ...prev,
+                ...[...e.target.files].map((file) => ({
+                  type: "new",
+                  file,
+                })),
+              ])
+            }
+            className="hidden"
+          />
+
+          <label
+            htmlFor="packageIcons"
+            className="flex flex-col items-center justify-center gap-2 cursor-pointer"
+          >
+            <span className="text-gray-500">Click to upload or drag & drop</span>
+            <span className="text-sm text-gray-400">(Upload icons)</span>
+          </label>
+        </div>
+
+        {/* Icon Preview */}
+        {icons.length > 0 && (
+          <div className="flex gap-3 mt-4 flex-wrap">
+            {icons.map((icon, i) => (
+              <div key={i} className="relative">
+                <img
+                  src={
+                    icon.type === "existing"
+                      ? icon.url
+                      : URL.createObjectURL(icon.file)
+                  }
+                  className="w-16 h-16 object-contain rounded-md shadow bg-white p-2"
+                />
+
+                <button
+                  onClick={() => deleteIcon(i)}
+                  className="absolute top-0 right-0 bg-red-600 text-white text-xs px-2 py-1 rounded"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <button
+          onClick={() => document.getElementById("packageIcons").click()}
+          className="mt-3 bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700"
+        >
+          ➕ Add Icons
+        </button>
+      </div>
+
+      {/* Update Button */}
+      <button
+        onClick={handleUpdate}
+        disabled={loading}
+        className="mt-5 bg-blue-600 text-white px-6 py-2 rounded"
+      >
+        {loading ? "Updating..." : "Update Package"}
+      </button>
     </div>
   );
 };

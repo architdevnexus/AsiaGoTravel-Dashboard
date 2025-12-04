@@ -2,7 +2,8 @@ import React, { useState } from "react";
 
 const AddPackage = () => {
   const [formData, setFormData] = useState({
-    tripCategory: "DomesticTrips", // Default selection
+    tripCategory: "DomesticTrips",
+    subTripCategory: "honeymoonTrip", // ⭐ NEW FIELD ADDED
     title: "",
     location: "",
     days: "",
@@ -13,7 +14,7 @@ const AddPackage = () => {
     exclusions: "",
     summary: "",
     rating: "",
-    itinerary: [{ day: "Day 1", title: "", description: "" }], // default Day 1
+    itinerary: [{ day: "Day 1", title: "", description: "" }],
     icons: [],
     overviewImages: [],
   });
@@ -24,11 +25,23 @@ const AddPackage = () => {
   };
 
   // FILE HANDLERS
-  const handleOverviewImages = (e) =>
-    setFormData({ ...formData, overviewImages: [...e.target.files] });
+const handleOverviewImages = (e) => {
+  const newFiles = [...e.target.files];
+  setFormData({
+    ...formData,
+    overviewImages: [...formData.overviewImages, ...newFiles],
+  });
+};
 
-  const handleIcons = (e) =>
-    setFormData({ ...formData, icons: [...e.target.files] });
+
+const handleIcons = (e) => {
+  const newIcons = [...e.target.files];
+  setFormData({
+    ...formData,
+    icons: [...formData.icons, ...newIcons],
+  });
+};
+
 
   // ITINERARY HANDLERS
   const handleItineraryChange = (index, e) => {
@@ -43,7 +56,7 @@ const AddPackage = () => {
       ...formData,
       itinerary: [
         ...formData.itinerary,
-        { day: `Day ${nextDayNumber}`, title: "", description: "" }, // auto Day n
+        { day: `Day ${nextDayNumber}`, title: "", description: "" },
       ],
     });
   };
@@ -51,110 +64,133 @@ const AddPackage = () => {
   const removeItinerary = (index) => {
     const copy = [...formData.itinerary];
     copy.splice(index, 1);
-    // update remaining day numbers
+
     const updatedItinerary = copy.map((item, i) => ({
       ...item,
       day: `Day ${i + 1}`,
     }));
+
     setFormData({ ...formData, itinerary: updatedItinerary });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const payload = new FormData();
+    try {
+      const payload = new FormData();
 
-    // Trip category
-    payload.append("tripCategory", formData.tripCategory);
+      payload.append("tripCategory", formData.tripCategory);
 
-    // Build Packages JSON (as in your curl)
-    const packagesJSON = [
-      {
-        subTripCategory: { main: "honeymoonTrip" },
-        tripDuration: {
-          days: Number(formData.days),
-          nights: Number(formData.nights),
-        },
-        title: formData.title,
-        location: formData.location,
-        overviewCategory: [
-          {
-            overview: formData.overview,
-            itinerary: formData.itinerary.map((item) => ({
-              ...item,
-              description: Array.isArray(item.description)
-                ? item.description
-                : item.description.split(",").map((d) => d.trim()),
-            })),
-            inclusions: formData.inclusions.split(",").map((i) => i.trim()),
-            exclusions: formData.exclusions.split(",").map((i) => i.trim()),
-            summary: formData.summary.split(",").map((s) => s.trim()),
+      // ⭐ Corrected Packages JSON with SubCategory
+      const packagesJSON = [
+        {
+          subTripCategory: { main: formData.subTripCategory },
+          tripDuration: {
+            days: Number(formData.days),
+            nights: Number(formData.nights),
           },
-        ],
-        priceDetails: [{ type: "Double", originalPrice: 1200, discountedPrice: 999 }],
-        rating: Number(formData.rating),
-        features: formData.features.split(",").map((f) => f.trim()),
-        icons: formData.iconsList || [
-          { name: "Running" },
-          { name: "DN" },
-          { name: "AAOI" },
-          { name: "car" },
-        ],
-        isActive: true,
-      },
-    ];
+          title: formData.title,
+          location: formData.location,
+          overviewCategory: [
+            {
+              overview: formData.overview,
+              itinerary: formData.itinerary.map((item) => ({
+                ...item,
+                description: Array.isArray(item.description)
+                  ? item.description
+                  : item.description.split(",").map((d) => d.trim()),
+              })),
+              inclusions: formData.inclusions.split(",").map((i) => i.trim()),
+              exclusions: formData.exclusions.split(",").map((i) => i.trim()),
+              summary: formData.summary.split(",").map((s) => s.trim()),
+            },
+          ],
+          priceDetails: [
+            { type: "Double", originalPrice: 1200, discountedPrice: 999 },
+          ],
+          rating: Number(formData.rating),
+          features: formData.features.split(",").map((f) => f.trim()),
 
-    payload.append("Packages", JSON.stringify(packagesJSON));
+          icons:
+            formData.iconsList || [
+              { name: "Running" },
+              { name: "DN" },
+              { name: "AAOI" },
+              { name: "car" },
+            ],
 
-    // Attach files
-    formData.overviewImages.forEach((file) => payload.append("overviewImages", file));
-    formData.icons.forEach((file) => payload.append("icons", file));
+          isActive: true,
+        },
+      ];
 
-    // Get token from localStorage
-    const token = localStorage.getItem("refreshToken");
+      payload.append("Packages", JSON.stringify(packagesJSON));
 
-    // Send request
-    const response = await fetch("https://backend.ghardekhoapna.com/api/addPackage", {
-      method: "POST",
-      headers: {
-        // Only include Authorization or Cookie if backend expects it
-        Cookie: `refreshToken=${token}`,
-      },
-      body: payload,
-    });
+      // Attach files
+      formData.overviewImages.forEach((file) =>
+        payload.append("overviewImages", file)
+      );
+      formData.icons.forEach((file) => payload.append("icons", file));
 
-    const result = await response.json();
-    console.log("API Response ->", result);
+      const token = localStorage.getItem("refreshToken");
 
-    if (response.ok) alert("Package added successfully!");
-    else alert(`Failed to add package: ${result.message}`);
-  } catch (err) {
-    console.error(err);
-    alert("Error submitting package");
-  }
-};
+      const response = await fetch(
+        "https://backend.ghardekhoapna.com/api/addPackage",
+        {
+          method: "POST",
+          headers: {
+            Cookie: `refreshToken=${token}`,
+          },
+          body: payload,
+        }
+      );
 
+      const result = await response.json();
+      console.log("API Response ->", result);
+
+      if (response.ok) alert("Package added successfully!");
+      else alert(`Failed to add package: ${result.message}`);
+    } catch (err) {
+      console.error(err);
+      alert("Error submitting package");
+    }
+  };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto pt-10">
       <h1 className="text-3xl font-bold mb-6">Add New Package</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-
-        {/* TRIP CATEGORY DROPDOWN */}
+        {/* TRIP CATEGORY */}
         <div>
           <label className="font-semibold">Trip Category</label>
           <select
             name="tripCategory"
-            onChange={(e) =>
-              setFormData({ ...formData, tripCategory: e.target.value })
-            }
+            onChange={handleChange}
             className="border p-2 w-full"
             value={formData.tripCategory}
           >
             <option value="DomesticTrips">Domestic Trips</option>
             <option value="InternationalTrips">International Trips</option>
+          </select>
+        </div>
+
+        {/* ⭐ SUB TRIP CATEGORY */}
+        <div>
+          <label className="font-semibold">Sub Trip Category</label>
+          <select
+            name="subTripCategory"
+            value={formData.subTripCategory}
+            onChange={handleChange}
+            className="border p-2 w-full"
+          >
+            <option value="honeymoonTrip">Honeymoon Trips</option>
+            <option value="familyGroupTrip">Family Trips</option>
+            <option value="friendsGroupTrip">Friends Group Trips</option>
+            <option value="bachelorTours">Bachelor Tours</option>
+            <option value="luxuryTours">Luxury Tours</option>
+            <option value="premiumHolidayPackage">Premium Holiday Package</option>
+            <option value="personalizedTours">Personalized Tours</option>
+
           </select>
         </div>
 
@@ -201,6 +237,7 @@ const handleSubmit = async (e) => {
           </div>
         </div>
 
+        {/* OVERVIEW */}
         <div>
           <label className="font-semibold">Overview</label>
           <textarea
@@ -211,7 +248,7 @@ const handleSubmit = async (e) => {
           />
         </div>
 
-        {/* ARRAYS */}
+        {/* FEATURES */}
         <div>
           <label className="font-semibold">Features (comma separated)</label>
           <textarea
@@ -222,6 +259,7 @@ const handleSubmit = async (e) => {
           />
         </div>
 
+        {/* INCLUSIONS */}
         <div>
           <label className="font-semibold">Inclusions (comma separated)</label>
           <textarea
@@ -232,6 +270,7 @@ const handleSubmit = async (e) => {
           />
         </div>
 
+        {/* EXCLUSIONS */}
         <div>
           <label className="font-semibold">Exclusions (comma separated)</label>
           <textarea
@@ -242,6 +281,7 @@ const handleSubmit = async (e) => {
           />
         </div>
 
+        {/* SUMMARY */}
         <div>
           <label className="font-semibold">Summary (comma separated)</label>
           <textarea
@@ -252,6 +292,7 @@ const handleSubmit = async (e) => {
           />
         </div>
 
+        {/* RATING */}
         <div>
           <label className="font-semibold">Rating</label>
           <input
@@ -324,7 +365,7 @@ const handleSubmit = async (e) => {
           + Add Day
         </button>
 
-        {/* SUBMIT */}
+        {/* SUBMIT BUTTON */}
         <button
           type="submit"
           className="w-full bg-blue-700 text-white py-3 rounded-lg text-lg"
