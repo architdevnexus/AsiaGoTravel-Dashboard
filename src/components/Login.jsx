@@ -26,7 +26,7 @@ export const Login = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("https://www.backend.ghardekhoapna.com/api/login", {
+      const res = await fetch("https://backend.ghardekhoapna.com/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,7 +72,7 @@ export const Login = () => {
     setForgotLoading(true);
 
     try {
-      const res = await fetch("https://www.backend.ghardekhoapna.com/api/forgot-password", {
+      const res = await fetch("https://backend.ghardekhoapna.com/api/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
