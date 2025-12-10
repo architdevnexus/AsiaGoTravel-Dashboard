@@ -16,6 +16,9 @@ import ProtectedRoute from "./components/routes/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AddPackage from "./components/PackageEdit/CreatePackage";
+import { Career } from "./components/Career/Career";
+import { CreateCareerJobForm } from "./components/Career/CreateCareer";
+import { CareerJobCard } from "./components/Career/AllCareer";
 
 function App() {
   const location = useLocation();
@@ -34,9 +37,9 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
+            // <ProtectedRoute>
+            <DashboardLayout />
+            // </ProtectedRoute>
           }
         >
           <Route index element={<h2>Dashboard Home</h2>} />
@@ -48,14 +51,27 @@ function App() {
           <Route path="all-blogs/:id" element={<BlogsSlugPage />} />
           <Route path="edit-blog/:id" element={<EditBlog />} />
           <Route path="createblogs" element={<CreateBlogs />} />
-                  <Route
-          path="all-packages/:id"  
-          element={
-           
+          <Route path="createcareer" element={<Career />} />
+          <Route path="career" element={<CareerJobCard
+            job={{
+              type: "Remote / Full Time",
+              title: "Senior React Developer",
+              description: "Build complex UI systems using React and Next.js.",
+            }}
+            onSave={(updatedJob) => console.log("Updated Job:", updatedJob)}
+            onDelete={(deletedJob) => console.log("Deleted →", deletedJob)}
+          />
+          } />
+
+
+          <Route
+            path="all-packages/:id"
+            element={
+
               <PackageSlugPage />
-        
-          }
-        />
+
+            }
+          />
         </Route>
 
 

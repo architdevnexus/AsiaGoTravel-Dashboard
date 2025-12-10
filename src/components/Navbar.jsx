@@ -25,8 +25,10 @@ const sidebarLinks = [
     path: "/dashboard/createblogs",
     label: "Create Blogs",
   },
+  { path: "/dashboard/Createcareer", label: "Create Career" },
+  { path: "/dashboard/career", label: "Job Applicants" },
 
-//   { path: "/dashboard/markupmanagement", label: "MARKUP MANAGEMENT" },
+
 //   { path: "/dashboard/feedbackmanagement", label: "FEEDBACK MANAGEMENT" },
 //   { path: "/dashboard/discountmanagement", label: "DISCOUNT MANAGEMENT" },
 //   { path: "/dashboard/analytics", label: "ANALYTICS" },
