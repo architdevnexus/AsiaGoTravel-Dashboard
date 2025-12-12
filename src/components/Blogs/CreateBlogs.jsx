@@ -64,7 +64,7 @@ const CreateBlogs = () => {
       setLoading(true);
 
       const res = await fetch(
-        "https://www.backend.ghardekhoapna.com/api/blogPost",
+        "https://backend.ghardekhoapna.com/api/blogPost",
         {
           method: "POST",
           headers: {

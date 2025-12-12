@@ -1,26 +1,67 @@
 "use client";
 import React, { useState } from "react";
 
-export const CreateCareerJobForm = ({ onCreateJob }) => {
+export const CreateCareerJobForm = ({ onCreateJob, onClose }) => {
   const [formData, setFormData] = useState({
     type: "",
     title: "",
     description: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // ✅ Prevent page reload
+
     if (!formData.type || !formData.title || !formData.description) {
       alert("Please fill all fields");
       return;
     }
 
-    onCreateJob(formData); // Send data to parent component
-    setFormData({ type: "", title: "", description: "" });
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "https://backend.ghardekhoapna.com/api/jobs",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: formData.title,
+            description: formData.description,
+            employmentTypes: formData.type.toLowerCase(), // string
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert("Error: " + (data?.message || "Something went wrong"));
+        return;
+      }
+
+      alert("Job Created Successfully!");
+
+      onCreateJob && onCreateJob(data);
+
+      setFormData({ type: "", title: "", description: "" });
+
+      // ✅ CLOSE MODAL AFTER SUCCESS
+      onClose && onClose();
+
+    } catch (error) {
+      console.error("API Error:", error);
+      alert("Failed to create job");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -40,9 +81,9 @@ export const CreateCareerJobForm = ({ onCreateJob }) => {
           className="border rounded-lg px-3 py-2"
         >
           <option value="">Select Type</option>
-          <option value="Remote / Full Time">Remote / Full Time</option>
           <option value="Full Time">Full Time</option>
           <option value="Part Time">Part Time</option>
+          <option value="Remote / Full Time">Remote / Full Time</option>
           <option value="Internship">Internship</option>
         </select>
       </div>
@@ -73,12 +114,13 @@ export const CreateCareerJobForm = ({ onCreateJob }) => {
         ></textarea>
       </div>
 
-      {/* Submit Button */}
+      {/* Submit */}
       <button
         type="submit"
-        className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full text-sm transition"
+        disabled={loading}
+        className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white py-2 rounded-full text-sm transition"
       >
-        Create Job
+        {loading ? "Creating..." : "Create Job"}
       </button>
     </form>
   );

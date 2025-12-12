@@ -1,6 +1,6 @@
 export const getBlogsById = async (id) => {
   try {
-    const res = await fetch(`https://www.backend.ghardekhoapna.com/api/AllBlog/${id}`, {
+    const res = await fetch(`https://backend.ghardekhoapna.com/api/AllBlog/${id}`, {
       method: "GET",
       cache: "no-store",
     });

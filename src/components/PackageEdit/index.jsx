@@ -26,7 +26,7 @@ export const PackageEdit = ({ slug }) => {
       if (!token) return console.error("Token missing!");
 
       const response = await fetch(
-        `https://www.backend.ghardekhoapna.com/api/package/delete/${item._id}`,
+        `https://backend.ghardekhoapna.com/api/package/delete/${item._id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

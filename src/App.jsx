@@ -19,6 +19,7 @@ import AddPackage from "./components/PackageEdit/CreatePackage";
 import { Career } from "./components/Career/Career";
 import { CreateCareerJobForm } from "./components/Career/CreateCareer";
 import { CareerJobCard } from "./components/Career/AllCareer";
+import { AllJobApplicants } from "./components/Career/AllJobApplicants";
 
 function App() {
   const location = useLocation();
@@ -37,9 +38,9 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            // <ProtectedRoute>
+           <ProtectedRoute>
             <DashboardLayout />
-            // </ProtectedRoute>
+            </ProtectedRoute>
           }
         >
           <Route index element={<h2>Dashboard Home</h2>} />
@@ -52,15 +53,7 @@ function App() {
           <Route path="edit-blog/:id" element={<EditBlog />} />
           <Route path="createblogs" element={<CreateBlogs />} />
           <Route path="createcareer" element={<Career />} />
-          <Route path="career" element={<CareerJobCard
-            job={{
-              type: "Remote / Full Time",
-              title: "Senior React Developer",
-              description: "Build complex UI systems using React and Next.js.",
-            }}
-            onSave={(updatedJob) => console.log("Updated Job:", updatedJob)}
-            onDelete={(deletedJob) => console.log("Deleted →", deletedJob)}
-          />
+          <Route path="jobapplicants" element={<AllJobApplicants />
           } />
 
 

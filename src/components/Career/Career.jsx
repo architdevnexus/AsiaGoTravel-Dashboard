@@ -1,15 +1,78 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CreateCareerJobForm } from "./CreateCareer";
 import { CareerJobCard } from "./AllCareer";
 
 export const Career = () => {
   const [jobs, setJobs] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  // -------------------------------
+  // 🔥 FETCH JOBS FROM API
+  // -------------------------------
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+
+      const res = await fetch("https://backend.ghardekhoapna.com/api/jobs/all", {
+        method: "GET",
+      });
+
+      const data = await res.json();
+      console.log("Fetched Jobs:", data?.jobs);
+
+      setJobs(data?.jobs || []);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  // -------------------------------
+  // 🟢 Add New Job After Create
+  // -------------------------------
   const addNewJob = (newJob) => {
     setJobs([...jobs, newJob]);
-    setIsModalOpen(false); // close modal after submit
+    setIsModalOpen(false);
+  };
+
+  // -------------------------------
+  // 🔥 DELETE JOB API
+  // -------------------------------
+  const deleteJob = async (job) => {
+ 
+    if (!job?._id) return alert("Invalid Job ID");
+
+    try {
+      const res = await fetch(
+        `https://backend.ghardekhoapna.com/api/jointeam/delete/${job._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+        }
+      );
+
+      if (!res.ok) {
+        return alert("Delete failed!");
+      }
+
+      alert("Job Deleted!");
+
+      // remove deleted job from UI
+      setJobs((prev) => prev.filter((item) => item._id !== job._id));
+
+    } catch (error) {
+      console.error("Delete Error:", error);
+      alert("Error deleting job");
+    }
   };
 
   return (
@@ -23,31 +86,30 @@ export const Career = () => {
         Create Job
       </button>
 
-      {/* -------- JOB CARD -------- */}
-      <div className="mt-10">
-        <CareerJobCard
-          job={{
-            type: "Remote / Full Time",
-            title: "Senior React Developer",
-            description: "Build complex UI systems using React and Next.js.",
-          }}
-          onSave={(updatedJob) => console.log("Updated Job:", updatedJob)}
-          onDelete={(deletedJob) => console.log("Deleted →", deletedJob)}
-        />
-      </div>
+      {/* -------- LOADING INDICATOR -------- */}
+      {loading && <p className="mt-5 text-gray-600">Loading jobs...</p>}
 
-      {/* -------- YOUR ADDED JOBS LIST -------- */}
+      {/* -------- JOBS LIST -------- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-10">
-        {jobs.map((job, index) => (
-          <CareerJobCard key={index} job={job} />
-        ))}
+        {jobs.length > 0 ? (
+          jobs.map((job, index) => (
+            <CareerJobCard
+              key={index}
+              job={job}
+              onSave={(updated) => console.log("Updated", updated)}
+              onDelete={deleteJob} // 🔥 REAL DELETE FUNCTION HERE
+            />
+          ))
+        ) : (
+          !loading && <p className="text-gray-500">No jobs available.</p>
+        )}
       </div>
 
       {/* -------- MODAL -------- */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
           <div className="bg-white w-[500px] rounded-xl p-6 relative shadow-lg">
-            
+
             {/* Close Button */}
             <button
               onClick={() => setIsModalOpen(false)}
