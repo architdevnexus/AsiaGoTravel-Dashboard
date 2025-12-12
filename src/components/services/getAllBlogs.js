@@ -1,6 +1,6 @@
 export const getAllBlogs = async () => {
   try {
-    const res = await fetch("https://backend.ghardekhoapna.com/api/AllBlog", {
+    const res = await fetch("https://backend.asiagotravels.com/api/AllBlog", {
       method: "GET",
     });
 

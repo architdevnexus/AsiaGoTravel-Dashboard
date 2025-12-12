@@ -44,7 +44,7 @@ const editor = useEditor({
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const res = await fetch(`https://backend.ghardekhoapna.com/api/AllBlog/${id}`);
+        const res = await fetch(`https://backend.asiagotravels.com/api/AllBlog/${id}`);
         const data = await res.json();
 
         console.log(data.blog.title)

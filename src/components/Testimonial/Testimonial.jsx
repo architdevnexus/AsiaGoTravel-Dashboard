@@ -9,7 +9,7 @@ export default function Testimonials() {
 
   const fetchTestimonials = async () => {
     try {
-      const res = await fetch("https://backend.ghardekhoapna.com/api/allTestimonials");
+      const res = await fetch("https://backend.asiagotravels.com/api/allTestimonials");
 
       if (!res.ok) {
         console.error("Failed to fetch testimonials");
@@ -47,7 +47,7 @@ const handleDelete = async (item) => {
 
   try {
     const res = await fetch(
-      `https://backend.ghardekhoapna.com/api/testimonial/delete/${item._id}`,
+      `https://backend.asiagotravels.com/api/testimonial/delete/${item._id}`,
       {
         method: "DELETE",
       }
@@ -84,13 +84,13 @@ const handleSave = async (data) => {
       // -------------------------
       // UPDATE TESTIMONIAL (PATCH)
       // -------------------------
-      url = `https://backend.ghardekhoapna.com/api/testimonial/update/${editingItem._id}`;
+      url = `https://backend.asiagotravels.com/api/testimonial/update/${editingItem._id}`;
       method = "PATCH";
     } else {
       // -------------------------
       // CREATE TESTIMONIAL (POST)
       // -------------------------
-      url = "https://backend.ghardekhoapna.com/api/create-Testimonials";
+      url = "https://backend.asiagotravels.com/api/create-Testimonials";
       method = "POST";
     }
 

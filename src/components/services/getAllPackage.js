@@ -1,7 +1,7 @@
 // services/getAllPackages.js
 export const getAllPackages = async () => {
   try {
-    const res = await fetch("https://backend.ghardekhoapna.com/api/allPackage", {
+    const res = await fetch("https://backend.asiagotravels.com/api/allPackage", {
       method: "GET",
     });
 
@@ -20,7 +20,7 @@ export const updatePackageById = async (id, formData) => {
   const token = localStorage.getItem("token");
 
   const response = await fetch(
-    `https://backend.ghardekhoapna.com/api/package/update/${id}`,
+    `https://backend.asiagotravels.com/api/package/update/${id}`,
     {
       method: "PATCH",
       headers: {

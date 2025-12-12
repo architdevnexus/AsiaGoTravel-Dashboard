@@ -134,7 +134,7 @@ const handleIcons = (e) => {
       const token = localStorage.getItem("refreshToken");
 
       const response = await fetch(
-        "https://backend.ghardekhoapna.com/api/addPackage",
+        "https://backend.asiagotravels.com/api/addPackage",
         {
           method: "POST",
           headers: {

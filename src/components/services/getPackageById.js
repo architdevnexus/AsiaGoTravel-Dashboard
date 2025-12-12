@@ -1,6 +1,6 @@
 export const getPackageById = async (id) => {
   try {
-    const res = await fetch(`https://backend.ghardekhoapna.com/api/allPackage/${id}`, {
+    const res = await fetch(`https://backend.asiagotravels.com/api/allPackage/${id}`, {
       method: "GET",
       cache: "no-store",
     });

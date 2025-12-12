@@ -15,7 +15,7 @@ export const Career = () => {
     try {
       setLoading(true);
 
-      const res = await fetch("https://backend.ghardekhoapna.com/api/jobs/all", {
+      const res = await fetch("https://backend.asiagotravels.com/api/jobs/all", {
         method: "GET",
       });
 
@@ -51,7 +51,7 @@ export const Career = () => {
 
     try {
       const res = await fetch(
-        `https://backend.ghardekhoapna.com/api/jointeam/delete/${job._id}`,
+        `https://backend.asiagotravels.com/api/jointeam/delete/${job._id}`,
         {
           method: "DELETE",
           headers: {

@@ -26,7 +26,7 @@ export const CreateCareerJobForm = ({ onCreateJob, onClose }) => {
 
     try {
       const response = await fetch(
-        "https://backend.ghardekhoapna.com/api/jobs",
+        "https://backend.asiagotravels.com/api/jobs",
         {
           method: "POST",
           headers: {
