@@ -51,7 +51,7 @@ export const Career = () => {
 
     try {
       const res = await fetch(
-        `https://backend.asiagotravels.com/api/jointeam/delete/${job._id}`,
+        `https://backend.asiagotravels.com/api/jobs/delete/${job._id}`,
         {
           method: "DELETE",
           headers: {

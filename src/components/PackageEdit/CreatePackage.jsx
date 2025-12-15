@@ -96,13 +96,13 @@ const handleIcons = (e) => {
               overview: formData.overview,
               itinerary: formData.itinerary.map((item) => ({
                 ...item,
-                description: Array.isArray(item.description)
-                  ? item.description
-                  : item.description.split(",").map((d) => d.trim()),
+                description: Array.isArray(item?.description)
+                  ? item?.description
+                  : item?.description.split(".").map((d) => d.trim()),
               })),
               inclusions: formData.inclusions.split(",").map((i) => i.trim()),
               exclusions: formData.exclusions.split(",").map((i) => i.trim()),
-              summary: formData.summary.split(",").map((s) => s.trim()),
+              summary: formData.summary.split(".").map((s) => s.trim()),
             },
           ],
           priceDetails: [
