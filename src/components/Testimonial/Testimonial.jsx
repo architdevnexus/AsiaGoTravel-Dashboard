@@ -9,7 +9,9 @@ export default function Testimonials() {
 
   const fetchTestimonials = async () => {
     try {
-      const res = await fetch("https://backend.asiagotravels.com/api/allTestimonials");
+      const res = await fetch(
+        "https://backend.asiagotravels.com/api/allTestimonials"
+      );
 
       if (!res.ok) {
         console.error("Failed to fetch testimonials");
@@ -17,9 +19,7 @@ export default function Testimonials() {
       }
 
       const data = await res.json();
-      console.log("Fetched:", data);
-
-      setTestimonials(data?.data || []); // depends on API structure
+      setTestimonials(data?.data || []);
     } catch (error) {
       console.error("Error fetching testimonials:", error);
     }
@@ -30,7 +30,7 @@ export default function Testimonials() {
   }, []);
 
   // ---------------------------
-  // ADD / EDIT HANDLERS
+  // ADD / EDIT
   // ---------------------------
   const handleAdd = () => {
     setEditingItem(null);
@@ -42,93 +42,73 @@ export default function Testimonials() {
     setModalOpen(true);
   };
 
-const handleDelete = async (item) => {
-  if (!window.confirm("Delete this testimonial?")) return;
+  // ---------------------------
+  // DELETE
+  // ---------------------------
+  const handleDelete = async (item) => {
+    if (!window.confirm("Delete this testimonial?")) return;
 
-  try {
-    const res = await fetch(
-      `https://backend.asiagotravels.com/api/testimonial/delete/${item._id}`,
-      {
-        method: "DELETE",
-      }
-    );
-
-    const result = await res.json();
-    console.log("Delete Result:", result);
-
-    if (!res.ok) {
-      alert(result.message || "Failed to delete testimonial");
-      return;
-    }
-
-    // Remove from UI
-    setTestimonials((prev) => prev.filter((t) => t._id !== item._id));
-
-  } catch (error) {
-    console.error("Delete Error:", error);
-  }
-};
-
-
-const handleSave = async (data) => {
-  try {
-    const formData = new FormData();
-    Object.keys(data).forEach((key) => {
-      formData.append(key, data[key]);
-    });
-
-    let url = "";
-    let method = "";
-
-    if (editingItem) {
-      // -------------------------
-      // UPDATE TESTIMONIAL (PATCH)
-      // -------------------------
-      url = `https://backend.asiagotravels.com/api/testimonial/update/${editingItem._id}`;
-      method = "PATCH";
-    } else {
-      // -------------------------
-      // CREATE TESTIMONIAL (POST)
-      // -------------------------
-      url = "https://backend.asiagotravels.com/api/create-Testimonials";
-      method = "POST";
-    }
-
-    const res = await fetch(url, {
-      method,
-      body: formData,
-    });
-
-    const result = await res.json();
-    console.log("Save Result:", result);
-
-    if (!res.ok) {
-      alert(result.message || "Something went wrong");
-      return;
-    }
-
-    // -------------------------
-    // UPDATE UI IMMEDIATELY
-    // -------------------------
-    if (editingItem) {
-      // Update existing testimonial
-      setTestimonials((prev) =>
-        prev.map((t) =>
-          t._id === editingItem._id ? { ...t, ...result.data } : t
-        )
+    try {
+      const res = await fetch(
+        `https://backend.asiagotravels.com/api/testimonial/delete/${item._id}`,
+        { method: "DELETE" }
       );
-    } else {
-      // Add newly created testimonial
-      setTestimonials((prev) => [result.data, ...prev]);
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        alert(result.message || "Failed to delete testimonial");
+        return;
+      }
+
+      setTestimonials((prev) =>
+        prev.filter((t) => t._id !== item._id)
+      );
+    } catch (error) {
+      console.error("Delete Error:", error);
     }
+  };
 
-    setModalOpen(false);
-  } catch (error) {
-    console.error("Error saving:", error);
-  }
-};
+  // ---------------------------
+  // SAVE (ADD / UPDATE)
+  // ---------------------------
+  const handleSave = async (data) => {
+    try {
+      const formData = new FormData();
+      Object.keys(data).forEach((key) => {
+        if (data[key] !== null) {
+          formData.append(key, data[key]);
+        }
+      });
 
+      const url = editingItem
+        ? `https://backend.asiagotravels.com/api/testimonial/update/${editingItem._id}`
+        : "https://backend.asiagotravels.com/api/create-Testimonials";
 
+      const method = editingItem ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        body: formData,
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        alert(result.message || "Something went wrong");
+        return;
+      }
+
+      // ✅ CLOSE MODAL
+      setModalOpen(false);
+
+      // ✅ RELOAD PAGE AFTER SUBMIT
+      window.location.reload();
+
+    } catch (error) {
+      console.error("Error saving:", error);
+    }
+  };
 
   return (
     <div className="p-8 pt-20">
@@ -142,7 +122,6 @@ const handleSave = async (data) => {
         </button>
       </div>
 
-      {/* Cards Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {testimonials.length > 0 ? (
           testimonials.map((item) => (
@@ -160,7 +139,6 @@ const handleSave = async (data) => {
         )}
       </div>
 
-      {/* Modal */}
       {modalOpen && (
         <TestimonialForm
           onClose={() => setModalOpen(false)}

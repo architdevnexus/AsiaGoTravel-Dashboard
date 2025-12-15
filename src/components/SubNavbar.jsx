@@ -29,7 +29,7 @@ export const SubNavbar = () => {
   return (
     <div className="bg-white h-[45px] absolute z-10 w-full flex justify-between px-10 fixed items-center shadow-md">
       <div className="p-4 text-xl font-bold border-b border-gray-700">
-        GoAsia Travels
+        AsiaGo Travels
       </div>
 
       <div className="flex gap-4 items-center relative" ref={dropdownRef}>

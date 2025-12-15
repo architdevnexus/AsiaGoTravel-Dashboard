@@ -9,6 +9,10 @@ const PackageSlugPage = () => {
   const { id } = useParams();
   const { loading: fetchLoading, packageData, refetch } = usePackageFetcher(id);
 
+const [features, setFeatures] = useState([]);
+const [featureInput, setFeatureInput] = useState("");
+
+
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
@@ -52,6 +56,12 @@ const PackageSlugPage = () => {
       excludes: overviewObj?.exclusions?.join(", ") || "",
     });
 
+ setFeatures(
+      Array.isArray(packageData?.features)
+        ? packageData.features
+        : []
+    );
+
     // ⭐ LOAD EXISTING IMAGES
     const existingImages =
       overviewObj?.images?.map((img) => ({
@@ -76,6 +86,18 @@ const PackageSlugPage = () => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  // ⭐ FEATURE HANDLERS (ADDED)
+const addFeature = () => {
+  if (!featureInput.trim()) return;
+  setFeatures((prev) => [...prev, featureInput.trim()]);
+  setFeatureInput("");
+};
+
+const removeFeature = (index) => {
+  setFeatures((prev) => prev.filter((_, i) => i !== index));
+};
+
 
   // ⭐ ADD NEW IMAGES
   const handleOverviewImages = (e) => {
@@ -110,11 +132,12 @@ const PackageSlugPage = () => {
       fd.append("subTripCategoryMain", form.category);
       fd.append("days", form.days);
       fd.append("nights", form.nights);
+      fd.append("features", JSON.stringify(features));
 
-      fd.append(
-        "features",
-        JSON.stringify(form.highlights.split(",").map((i) => i.trim()))
-      );
+      // fd.append(
+      //   "features",
+      //   JSON.stringify(form.highlights.split(",").map((i) => i.trim()))
+      // );
 
       fd.append(
         "priceDetails",
@@ -178,6 +201,8 @@ const PackageSlugPage = () => {
           },
         ])
       );
+
+      setFeatures(Array.isArray(packageData?.features) ? packageData.features : []);
 
       // ⭐ SEND ICONS SEPARATELY (ROOT LEVEL)
       fd.append("iconsData", JSON.stringify(finalIconsArray));
@@ -337,6 +362,55 @@ const PackageSlugPage = () => {
           ➕ Add Icons
         </button>
       </div>
+
+
+      {/* ⭐ FEATURES INPUT (ADDED – NOTHING REMOVED) */}
+<div className="mb-6">
+  <label className="block text-gray-700 font-medium mb-2">
+    Features
+  </label>
+
+  <div className="flex gap-2">
+    <input
+      type="text"
+      value={featureInput}
+      onChange={(e) => setFeatureInput(e.target.value)}
+      onKeyDown={(e) => e.key === "Enter" && addFeature()}
+      placeholder="Type feature and press Enter"
+      className="flex-1 border rounded px-3 py-2"
+    />
+
+    <button
+      type="button"
+      onClick={addFeature}
+      className="bg-blue-600 text-white px-4 rounded"
+    >
+      Add
+    </button>
+  </div>
+
+  {features.length > 0 && (
+    <div className="flex flex-wrap gap-2 mt-3">
+      {features.map((item, index) => (
+        <span
+          key={index}
+          className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+        >
+          {item}
+          <button
+            onClick={() => removeFeature(index)}
+            className="text-red-600 font-bold"
+          >
+            ×
+          </button>
+        </span>
+      ))}
+    </div>
+  )}
+</div>
+
+
+      
 
       {/* Update Button */}
       <button

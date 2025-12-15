@@ -184,8 +184,8 @@ const handleIcons = (e) => {
             className="border p-2 w-full"
           >
             <option value="honeymoonTrip">Honeymoon Trips</option>
-            <option value="familyGroupTrip">Family Trips</option>
-            <option value="friendsGroupTrip">Friends Group Trips</option>
+            <option value="familyGroupTrip">Family Group Trips</option>
+            <option value="familyHoliday">Family Trips</option>
             <option value="bachelorTours">Bachelor Tours</option>
             <option value="luxuryTours">Luxury Tours</option>
             <option value="premiumHolidayPackage">Premium Holiday Package</option>
