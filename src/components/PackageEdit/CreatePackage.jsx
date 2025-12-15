@@ -106,7 +106,7 @@ const handleIcons = (e) => {
             },
           ],
           priceDetails: [
-            { type: "Double", originalPrice: 1200, discountedPrice: 999 },
+            { type: String, originalPrice: "As per request", discountedPrice: "As per request " },
           ],
           rating: Number(formData.rating),
           features: formData.features.split(",").map((f) => f.trim()),
