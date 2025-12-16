@@ -1,11 +1,24 @@
 "use client";
 import React, { useState } from "react";
 
-
 export const PackageProductPage = ({ images = [], title = "" }) => {
   const [editableTitle, setEditableTitle] = useState(title);
-  const [editableImages, setEditableImages] = useState(images); // stores preview URLs
-  const [imageFiles, setImageFiles] = useState([]); // actual file objects
+  const [editableImages, setEditableImages] = useState(images);
+  const [imageFiles, setImageFiles] = useState([]);
+
+  // ✅ ADD MISSING STATE
+  const [formData, setFormData] = useState({
+    tripCategory: "DomesticTrips",
+  });
+
+  // ✅ ADD MISSING HANDLER
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   // Handle file upload
   const handleFileUpload = (index, file) => {
@@ -31,8 +44,22 @@ export const PackageProductPage = ({ images = [], title = "" }) => {
 
   return (
     <div className="bg-gray-50 p-5 rounded-lg">
-      {/* Label + Editable Title */}
-      <label className="block font-semibold text-gray-700 mb-1">
+      {/* Trip Category */}
+      <div>
+        <label className="font-semibold">Trip Category</label>
+        <select
+          name="tripCategory"
+          onChange={handleChange}
+          className="border p-2 w-full"
+          value={formData.tripCategory}
+        >
+          <option value="DomesticTrips">Domestic Trips</option>
+          <option value="InternationalTrips">International Trips</option>
+        </select>
+      </div>
+
+      {/* Package Title */}
+      <label className="block font-semibold text-gray-700 mb-1 mt-4">
         Package Title
       </label>
       <input
@@ -42,7 +69,7 @@ export const PackageProductPage = ({ images = [], title = "" }) => {
         onChange={(e) => setEditableTitle(e.target.value)}
       />
 
-      {/* Image Upload Inputs */}
+      {/* Image Upload */}
       <label className="block font-semibold text-gray-700 mb-2">
         Upload Images
       </label>
@@ -60,8 +87,9 @@ export const PackageProductPage = ({ images = [], title = "" }) => {
         ))}
 
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded w-fit"
+          className="px-4 py-2 bg-[#1B4965] text-white rounded w-fit"
           onClick={addImage}
+          type="button"
         >
           + Add Image
         </button>
@@ -69,18 +97,12 @@ export const PackageProductPage = ({ images = [], title = "" }) => {
 
       {/* Preview Section */}
       <div className="flex gap-3 overflow-x-auto">
-        {/* Left Large Image */}
         {editableImages[0] && (
           <div className="relative w-[400px] h-[325px] rounded-lg overflow-hidden shrink-0">
-            <img
-              src={editableImages[0]}
-              alt=""
-              className="w-full h-full object-cover"
-            />
+            <img src={editableImages[0]} className="w-full h-full object-cover" />
           </div>
         )}
 
-        {/* Middle stacked images */}
         <div className="flex flex-col gap-2 shrink-0">
           {[1, 2].map(
             (i) =>
@@ -91,7 +113,6 @@ export const PackageProductPage = ({ images = [], title = "" }) => {
                 >
                   <img
                     src={editableImages[i]}
-                    alt=""
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -99,12 +120,10 @@ export const PackageProductPage = ({ images = [], title = "" }) => {
           )}
         </div>
 
-        {/* Right Large Image */}
         {editableImages[3] && (
           <div className="relative w-[400px] h-[325px] rounded-lg overflow-hidden shrink-0">
             <img
               src={editableImages[3]}
-              alt=""
               className="w-full h-full object-cover"
             />
           </div>

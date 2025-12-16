@@ -9,8 +9,9 @@ const PackageSlugPage = () => {
   const { id } = useParams();
   const { loading: fetchLoading, packageData, refetch } = usePackageFetcher(id);
 
-const [features, setFeatures] = useState([]);
-const [featureInput, setFeatureInput] = useState("");
+  const [features, setFeatures] = useState([]);
+  const [featureInput, setFeatureInput] = useState("");
+  
 
 
   const [loading, setLoading] = useState(false);
@@ -39,12 +40,12 @@ const [featureInput, setFeatureInput] = useState("");
     let parsedDuration = { days: "", nights: "" };
     try {
       parsedDuration = JSON.parse(packageData.tripDuration);
-    } catch {}
+    } catch { }
 
     const overviewObj = packageData?.overviewCategory?.[0] || {};
 
     setForm({
-      title: packageData.title || "",
+      title: packageData?.title || "",
       location: packageData.location || "",
       overview: overviewObj.overview || "",
       days: parsedDuration.days || "",
@@ -56,7 +57,7 @@ const [featureInput, setFeatureInput] = useState("");
       excludes: overviewObj?.exclusions?.join(", ") || "",
     });
 
- setFeatures(
+    setFeatures(
       Array.isArray(packageData?.features)
         ? packageData.features
         : []
@@ -88,15 +89,15 @@ const [featureInput, setFeatureInput] = useState("");
   };
 
   // ⭐ FEATURE HANDLERS (ADDED)
-const addFeature = () => {
-  if (!featureInput.trim()) return;
-  setFeatures((prev) => [...prev, featureInput.trim()]);
-  setFeatureInput("");
-};
+  const addFeature = () => {
+    if (!featureInput.trim()) return;
+    setFeatures((prev) => [...prev, featureInput.trim()]);
+    setFeatureInput("");
+  };
 
-const removeFeature = (index) => {
-  setFeatures((prev) => prev.filter((_, i) => i !== index));
-};
+  const removeFeature = (index) => {
+    setFeatures((prev) => prev.filter((_, i) => i !== index));
+  };
 
 
   // ⭐ ADD NEW IMAGES
@@ -181,26 +182,27 @@ const removeFeature = (index) => {
           })),
       ];
 
-      // ⭐ OVERVIEW CATEGORY (images only)
+      // ⭐ OVERVIEW CATEGORY (dynamic)
       fd.append(
         "overviewCategory",
         JSON.stringify([
           {
             overview: form.overview,
-            itinerary: [
-              {
-                day: "Day 1",
-                title: "Arrival & Local Sightseeing",
-                description: ["Arrival", "Check-in", "Local market"],
-              },
-            ],
-            inclusions: form.includes.split(",").map((i) => i.trim()),
-            exclusions: form.excludes.split(",").map((i) => i.trim()),
-            summary: form.highlights.split(",").map((i) => i.trim()),
+            itinerary: form.itinerary || [],   // 🔥 dynamic itinerary
+            inclusions: form.includes
+              ? form.includes.split(",").map((i) => i.trim())
+              : [],
+            exclusions: form.excludes
+              ? form.excludes.split(",").map((i) => i.trim())
+              : [],
+            summary: form.highlights
+              ? form.highlights.split(",").map((i) => i.trim())
+              : [],
             images: finalImagesArray,
           },
         ])
       );
+
 
       setFeatures(Array.isArray(packageData?.features) ? packageData.features : []);
 
@@ -244,11 +246,11 @@ const removeFeature = (index) => {
       <OverviewSection overviewData={packageData} />
 
       {/* ⭐ OVERVIEW IMAGES SECTION */}
-      <div className="mb-6">
+      <div className="mb-6  mt-10">
         <label className="block text-gray-700 font-medium mb-2">Overview Images</label>
 
         {/* Upload Box */}
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-5 cursor-pointer hover:border-blue-500 transition">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-5 cursor-pointer hover:border-[#1B4965] transition">
           <input
             type="file"
             multiple
@@ -293,7 +295,7 @@ const removeFeature = (index) => {
         {/* Add Button */}
         <button
           onClick={() => document.getElementById("overviewImages").click()}
-          className="mt-3 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
+          className="mt-3 bg-[#1B4965] text-white px-4 py-2 rounded shadow hover:bg-[#1B4965]"
         >
           ➕ Add Images
         </button>
@@ -365,58 +367,58 @@ const removeFeature = (index) => {
 
 
       {/* ⭐ FEATURES INPUT (ADDED – NOTHING REMOVED) */}
-<div className="mb-6">
-  <label className="block text-gray-700 font-medium mb-2">
-    Features
-  </label>
+      <div className="mb-6">
+        <label className="block text-gray-700 font-medium mb-2">
+          Features
+        </label>
 
-  <div className="flex gap-2">
-    <input
-      type="text"
-      value={featureInput}
-      onChange={(e) => setFeatureInput(e.target.value)}
-      onKeyDown={(e) => e.key === "Enter" && addFeature()}
-      placeholder="Type feature and press Enter"
-      className="flex-1 border rounded px-3 py-2"
-    />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={featureInput}
+            onChange={(e) => setFeatureInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addFeature()}
+            placeholder="Type feature and press Enter"
+            className="flex-1 border rounded px-3 py-2"
+          />
 
-    <button
-      type="button"
-      onClick={addFeature}
-      className="bg-blue-600 text-white px-4 rounded"
-    >
-      Add
-    </button>
-  </div>
-
-  {features.length > 0 && (
-    <div className="flex flex-wrap gap-2 mt-3">
-      {features.map((item, index) => (
-        <span
-          key={index}
-          className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-        >
-          {item}
           <button
-            onClick={() => removeFeature(index)}
-            className="text-red-600 font-bold"
+            type="button"
+            onClick={addFeature}
+            className="bg-[#1B4965] text-white px-4 rounded"
           >
-            ×
+            Add
           </button>
-        </span>
-      ))}
-    </div>
-  )}
-</div>
+        </div>
+
+        {features.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {features.map((item, index) => (
+              <span
+                key={index}
+                className="bg-blue-100 text-[#1B4965] px-3 py-1 rounded-full text-sm flex items-center gap-2"
+              >
+                {item}
+                <button
+                  onClick={() => removeFeature(index)}
+                  className="text-red-600 font-bold"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
 
 
-      
+
 
       {/* Update Button */}
       <button
         onClick={handleUpdate}
         disabled={loading}
-        className="mt-5 bg-blue-600 text-white px-6 py-2 rounded"
+        className="mt-5 bg-[#1B4965] text-white px-6 py-2 rounded"
       >
         {loading ? "Updating..." : "Update Package"}
       </button>
