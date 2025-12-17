@@ -36,8 +36,8 @@ export const BlogsCard = ({
                   bg-black/40 backdrop-blur-sm cursor-pointer">
     <IoLocationOutline className="text-[20px] shrink-0" />
     <span>
-      {pkg?.location?.split(" ").slice(0, 7).join(" ")}
-      {pkg?.location?.split(" ").length > 7 && " ..."}
+      {pkg?.location?.split(" ").slice(0, 5).join(" ")}
+      {pkg?.location?.split(" ").length > 6 && " ..."}
     </span>
   </div>
 
