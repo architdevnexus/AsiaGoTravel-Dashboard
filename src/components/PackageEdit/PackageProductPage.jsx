@@ -1,8 +1,10 @@
 "use client";
 import React, { useState } from "react";
 
-export const PackageProductPage = ({ images = [], title = "" }) => {
-  const [editableTitle, setEditableTitle] = useState(title);
+export const PackageProductPage = ({ images = [], title = "" , setTitle , location = "" , setLocation ,   days = "",
+  nights = "", setDays,
+  setNights, }) => {
+ 
   const [editableImages, setEditableImages] = useState(images);
   const [imageFiles, setImageFiles] = useState([]);
 
@@ -19,6 +21,7 @@ export const PackageProductPage = ({ images = [], title = "" }) => {
       [name]: value,
     }));
   };
+
 
   // Handle file upload
   const handleFileUpload = (index, file) => {
@@ -62,12 +65,57 @@ export const PackageProductPage = ({ images = [], title = "" }) => {
       <label className="block font-semibold text-gray-700 mb-1 mt-4">
         Package Title
       </label>
-      <input
+
+       <input
         type="text"
-        className="text-xl font-semibold mb-4 border p-2 rounded w-full"
-        value={editableTitle}
-        onChange={(e) => setEditableTitle(e.target.value)}
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="text-xl font-semibold mb-2 border p-2 rounded w-full"
+        placeholder="Enter Package Title"
       />
+
+
+          <label className="block font-semibold text-gray-700 mb-1 mt-4">
+       Location
+      </label>
+
+       <input
+        type="text"
+        value={location}
+        onChange={(e) => setLocation(e.target.value)}
+        className="text-xl font-semibold mb-6 border p-2 rounded w-full"
+        placeholder="Enter Location"
+      />
+
+
+            {/* DAYS & NIGHTS */}
+      <div className="flex gap-4 mb-4">
+
+            <label className="block font-semibold text-gray-700 mb-1 mt-4">
+       Days
+      </label>
+        <input
+          type="number"
+          min="0"
+          value={days}
+          onChange={(e) => setDays(e.target.value)}
+          className="text-xl font-semibold mb-6 border p-2 rounded w-full"
+          placeholder="Days"
+        />
+
+            <label className="block font-semibold text-gray-700 mb-1 mt-4">
+       Night
+      </label>
+
+        <input
+          type="number"
+          min="0"
+          value={nights}
+          onChange={(e) => setNights(e.target.value)}
+          className="text-xl font-semibold mb-6 border p-2 rounded w-full"
+          placeholder="Nights"
+        />
+      </div>
 
       {/* Image Upload */}
       <label className="block font-semibold text-gray-700 mb-2">

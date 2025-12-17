@@ -31,10 +31,27 @@ export const BlogsCard = ({
                     className="w-full h-56 object-cover p-3 rounded-4xl"
                   />
 
-                  <div className="absolute top-5 left-4 text-white text-lg px-3 py-1 rounded-full flex items-center gap-1 bg-black/40 backdrop-blur-sm">
-                    <IoLocationOutline className="text-[20px]" />
-                    {pkg?.location}
-                  </div>
+         <div className="absolute top-5 left-4 group">
+  <div className="text-white text-lg px-3 py-1 rounded-full flex items-center gap-1 
+                  bg-black/40 backdrop-blur-sm cursor-pointer">
+    <IoLocationOutline className="text-[20px] shrink-0" />
+    <span>
+      {pkg?.location?.split(" ").slice(0, 7).join(" ")}
+      {pkg?.location?.split(" ").length > 7 && " ..."}
+    </span>
+  </div>
+
+  {/* TOOLTIP */}
+  {pkg?.location && (
+    <div className="absolute left-0 top-full mt-2 z-50 hidden group-hover:block
+                    bg-black text-white text-sm px-3 py-2 rounded-md
+                    max-w-xs shadow-lg whitespace-normal">
+      {pkg.location}
+    </div>
+  )}
+</div>
+
+
                 </div>
 
                 {/* ---------- CONTENT ---------- */}

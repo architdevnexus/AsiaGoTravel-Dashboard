@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 
 const AddPackage = () => {
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     tripCategory: "DomesticTrips",
     subTripCategory: "honeymoonTrip", // ⭐ NEW FIELD ADDED
@@ -73,87 +75,86 @@ const handleIcons = (e) => {
     setFormData({ ...formData, itinerary: updatedItinerary });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true); // 🔥 start loader
 
-    try {
-      const payload = new FormData();
+  try {
+    const payload = new FormData();
 
-      payload.append("tripCategory", formData.tripCategory);
+    payload.append("tripCategory", formData.tripCategory);
 
-      // ⭐ Corrected Packages JSON with SubCategory
-      const packagesJSON = [
-        {
-          subTripCategory: { main: formData.subTripCategory },
-          tripDuration: {
-            days: Number(formData.days),
-            nights: Number(formData.nights),
-          },
-          title: formData.title,
-          location: formData.location,
-          overviewCategory: [
-            {
-              overview: formData.overview,
-              itinerary: formData.itinerary.map((item) => ({
-                ...item,
-                description: Array.isArray(item?.description)
-                  ? item?.description
-                  : item?.description.split(".").map((d) => d.trim()),
-              })),
-              inclusions: formData.inclusions.split(",").map((i) => i.trim()),
-              exclusions: formData.exclusions.split(",").map((i) => i.trim()),
-              summary: formData.summary.split(".").map((s) => s.trim()),
-            },
-          ],
-          priceDetails: [
-            { type: String, originalPrice: "As per request", discountedPrice: "As per request " },
-          ],
-          rating: Number(formData.rating),
-          features: formData.features.split(",").map((f) => f.trim()),
-
-          icons:
-            formData.iconsList || [
-              { name: "Running" },
-              { name: "DN" },
-              { name: "AAOI" },
-              { name: "car" },
-            ],
-
-          isActive: true,
+    const packagesJSON = [
+      {
+        subTripCategory: { main: formData.subTripCategory },
+        tripDuration: {
+          days: Number(formData.days),
+          nights: Number(formData.nights),
         },
-      ];
-
-      payload.append("Packages", JSON.stringify(packagesJSON));
-
-      // Attach files
-      formData.overviewImages.forEach((file) =>
-        payload.append("overviewImages", file)
-      );
-      formData.icons.forEach((file) => payload.append("icons", file));
-
-      const token = localStorage.getItem("refreshToken");
-
-      const response = await fetch(
-        "https://backend.asiagotravels.com/api/addPackage",
-        {
-          method: "POST",
-          headers: {
-            Cookie: `refreshToken=${token}`,
+        title: formData.title,
+        location: formData.location,
+        overviewCategory: [
+          {
+            overview: formData.overview,
+            itinerary: formData.itinerary.map((item) => ({
+              ...item,
+              description: Array.isArray(item?.description)
+                ? item?.description
+                : item?.description.split(".").map((d) => d.trim()),
+            })),
+            inclusions: formData.inclusions.split(",").map((i) => i.trim()),
+            exclusions: formData.exclusions.split(",").map((i) => i.trim()),
+            summary: formData.summary.split(".").map((s) => s.trim()),
           },
-          body: payload,
-        }
-      );
+        ],
+        priceDetails: [
+          {
+            type: "Double",
+            originalPrice: "As per request",
+            discountedPrice: "As per request",
+          },
+        ],
+        rating: Number(formData.rating),
+        features: formData.features.split(",").map((f) => f.trim()),
+        isActive: true,
+      },
+    ];
 
-      const result = await response.json();
-      console.log("API Response ->", result);
+    payload.append("Packages", JSON.stringify(packagesJSON));
 
-      if (response.ok) alert("Package added successfully!");
-      else alert(`Failed to add package: ${result.message}`);
-    } catch (err) {
-      console.error(err);
-      alert("Error submitting package");
+    formData.overviewImages.forEach((file) =>
+      payload.append("overviewImages", file)
+    );
+    formData.icons.forEach((file) => payload.append("icons", file));
+
+    const token = localStorage.getItem("refreshToken");
+
+    const response = await fetch(
+      "https://backend.asiagotravels.com/api/addPackage",
+      {
+        method: "POST",
+        headers: {
+          Cookie: `refreshToken=${token}`,
+        },
+        body: payload,
+      }
+    );
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert("Package added successfully!");
+    } else {
+      alert(`Failed to add package: ${result.message}`);
     }
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Error submitting package");
+  } finally {
+    setLoading(false); // 🔥 stop loader
+  }
+};
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto pt-10">
@@ -366,12 +367,23 @@ const handleIcons = (e) => {
         </button>
 
         {/* SUBMIT BUTTON */}
-        <button
-          type="submit"
-          className="w-full bg-blue-700 text-white py-3 rounded-lg text-lg"
-        >
-          Submit Package
-        </button>
+   <button
+  type="submit"
+  disabled={loading}
+  className={`w-full py-3 rounded-lg text-lg flex items-center justify-center gap-2
+    ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-700 text-white"}
+  `}
+>
+  {loading ? (
+    <>
+      <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+      Creating Package...
+    </>
+  ) : (
+    "Submit Package"
+  )}
+</button>
+
       </form>
     </div>
   );

@@ -11,9 +11,6 @@ const PackageSlugPage = () => {
 
   const [features, setFeatures] = useState([]);
   const [featureInput, setFeatureInput] = useState("");
-  
-
-
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
@@ -24,9 +21,11 @@ const PackageSlugPage = () => {
     nights: "",
     price: "",
     category: "",
-    highlights: "",
-    includes: "",
-    excludes: "",
+    summary: [],    // ✅
+    inclusions: [],    // ✅ array
+    exclusions: [],
+    itinerary: [],
+
   });
 
   // ⭐ Images + Icons State
@@ -43,6 +42,7 @@ const PackageSlugPage = () => {
     } catch { }
 
     const overviewObj = packageData?.overviewCategory?.[0] || {};
+    console.log("Loaded Overview Obj:", overviewObj);
 
     setForm({
       title: packageData?.title || "",
@@ -52,9 +52,18 @@ const PackageSlugPage = () => {
       nights: parsedDuration.nights || "",
       price: packageData?.priceDetails?.[0]?.discountedPrice || "",
       category: packageData?.subTripCategory?.main || "",
-      highlights: overviewObj?.summary?.join(", ") || "",
-      includes: overviewObj?.inclusions?.join(", ") || "",
-      excludes: overviewObj?.exclusions?.join(", ") || "",
+      summary: Array.isArray(overviewObj?.summary)
+        ? overviewObj.summary
+        : [],
+      inclusions: Array.isArray(overviewObj?.inclusions)
+        ? overviewObj.inclusions
+        : [],
+      exclusions: Array.isArray(overviewObj?.exclusions)
+        ? overviewObj.exclusions
+        : [],
+      itinerary: Array.isArray(overviewObj?.itinerary)
+        ? overviewObj.itinerary
+        : [],
     });
 
     setFeatures(
@@ -119,14 +128,12 @@ const PackageSlugPage = () => {
     setIcons((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // ⭐ SUBMIT UPDATE
   const handleUpdate = async () => {
     setLoading(true);
 
     try {
       const fd = new FormData();
 
-      // Basic fields
       fd.append("title", form.title);
       fd.append("location", form.location);
       fd.append("rating", "4.9");
@@ -134,11 +141,6 @@ const PackageSlugPage = () => {
       fd.append("days", form.days);
       fd.append("nights", form.nights);
       fd.append("features", JSON.stringify(features));
-
-      // fd.append(
-      //   "features",
-      //   JSON.stringify(form.highlights.split(",").map((i) => i.trim()))
-      // );
 
       fd.append(
         "priceDetails",
@@ -153,7 +155,7 @@ const PackageSlugPage = () => {
         ])
       );
 
-      // ⭐ MERGE IMAGES
+      // ⭐ Images
       const finalImagesArray = [
         ...images
           .filter((img) => img.type === "existing")
@@ -166,55 +168,37 @@ const PackageSlugPage = () => {
           })),
       ];
 
-      // ⭐ MERGE ICONS (ROOT LEVEL)
+      // ⭐ Icons
       const finalIconsArray = [
         ...icons
           .filter((ic) => ic.type === "existing")
-          .map((ic) => ({
-            url: ic.url,
-            name: ic.name,
-          })),
+          .map((ic) => ({ url: ic.url, name: ic.name })),
         ...icons
           .filter((ic) => ic.type === "new")
-          .map((ic) => ({
-            url: "",
-            name: ic.file.name,
-          })),
+          .map((ic) => ({ url: "", name: ic.file.name })),
       ];
 
-      // ⭐ OVERVIEW CATEGORY (dynamic)
+      // ⭐ OVERVIEW CATEGORY (ONLY ONCE)
       fd.append(
         "overviewCategory",
         JSON.stringify([
           {
             overview: form.overview,
-            itinerary: form.itinerary || [],   // 🔥 dynamic itinerary
-            inclusions: form.includes
-              ? form.includes.split(",").map((i) => i.trim())
-              : [],
-            exclusions: form.excludes
-              ? form.excludes.split(",").map((i) => i.trim())
-              : [],
-            summary: form.highlights
-              ? form.highlights.split(",").map((i) => i.trim())
-              : [],
+            itinerary: form.itinerary,
+            inclusions: form.inclusions,
+            exclusions: form.exclusions,
+            summary: form.summary,
             images: finalImagesArray,
           },
         ])
       );
 
-
-      setFeatures(Array.isArray(packageData?.features) ? packageData.features : []);
-
-      // ⭐ SEND ICONS SEPARATELY (ROOT LEVEL)
       fd.append("iconsData", JSON.stringify(finalIconsArray));
 
-      // ⭐ UPLOAD NEW IMAGES
       images
         .filter((img) => img.type === "new")
         .forEach((img) => fd.append("overviewImages", img.file));
 
-      // ⭐ UPLOAD NEW ICONS
       icons
         .filter((ic) => ic.type === "new")
         .forEach((ic) => fd.append("icons", ic.file));
@@ -223,7 +207,6 @@ const PackageSlugPage = () => {
 
       alert("Package Updated Successfully!");
       refetch();
-
     } catch (err) {
       console.error(err);
       alert("Update failed!");
@@ -232,18 +215,62 @@ const PackageSlugPage = () => {
     setLoading(false);
   };
 
+
   if (fetchLoading || !packageData)
     return <p className="text-center py-10">Loading...</p>;
 
   return (
     <div className="p-5 pt-20">
-
       <PackageProductPage
         images={packageData?.overviewCategory?.[0]?.images?.map((img) => img.url) || []}
-        title={packageData.title}
+        title={form.title}
+        setTitle={(value) =>
+          setForm((prev) => ({ ...prev, title: value }))
+        }
+        location={form.location}
+        setLocation={(value) =>
+          setForm((prev) => ({ ...prev, location: value }))
+        }
+
+        days={form.days}
+nights={form.nights}
+
+        setDays={(value) =>
+          setForm((prev) => ({ ...prev, days: value }))
+        }
+        setNights={(value) =>
+          setForm((prev) => ({ ...prev, nights: value }))
+        }
       />
 
-      <OverviewSection overviewData={packageData} />
+      <OverviewSection
+        overviewData={packageData}
+        itinerary={form.itinerary}
+        setItinerary={(updatedItinerary) =>
+          setForm((prev) => ({
+            ...prev,
+            itinerary: updatedItinerary,
+          }))
+        }
+        inclusions={form.inclusions}
+        setInclusions={(inclusions) =>
+          setForm((prev) => ({ ...prev, inclusions }))
+        }
+        exclusions={form.exclusions}
+        setExclusions={(exclusions) =>
+          setForm((prev) => ({ ...prev, exclusions }))
+        }
+        summary={form.summary}
+        setSummary={(summary) =>
+          setForm((prev) => ({ ...prev, summary }))
+        }
+
+        price={form.price}                // ✅ ADD
+        setPrice={(value) =>
+          setForm((prev) => ({ ...prev, price: value }))
+        }
+      />
+
 
       {/* ⭐ OVERVIEW IMAGES SECTION */}
       <div className="mb-6  mt-10">
