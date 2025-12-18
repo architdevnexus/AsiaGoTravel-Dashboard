@@ -48,7 +48,7 @@ export const PackageProductPage = ({ images = [], title = "" , setTitle , locati
   return (
     <div className="bg-gray-50 p-5 rounded-lg">
       {/* Trip Category */}
-      <div>
+      {/* <div>
         <label className="font-semibold">Trip Category</label>
         <select
           name="tripCategory"
@@ -59,7 +59,7 @@ export const PackageProductPage = ({ images = [], title = "" , setTitle , locati
           <option value="DomesticTrips">Domestic Trips</option>
           <option value="InternationalTrips">International Trips</option>
         </select>
-      </div>
+      </div> */}
 
       {/* Package Title */}
       <label className="block font-semibold text-gray-700 mb-1 mt-4">

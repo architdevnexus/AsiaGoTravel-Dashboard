@@ -36,10 +36,10 @@ const PackageSlugPage = () => {
   useEffect(() => {
     if (!packageData) return;
 
-    let parsedDuration = { days: "", nights: "" };
-    try {
-      parsedDuration = JSON.parse(packageData.tripDuration);
-    } catch { }
+    // let parsedDuration = { days: "", nights: "" };
+    // try {
+    //   parsedDuration = JSON.parse(packageData.tripDuration);
+    // } catch { }
 
     const overviewObj = packageData?.overviewCategory?.[0] || {};
     console.log("Loaded Overview Obj:", overviewObj);
@@ -48,9 +48,9 @@ const PackageSlugPage = () => {
       title: packageData?.title || "",
       location: packageData.location || "",
       overview: overviewObj.overview || "",
-      days: parsedDuration.days || "",
-      nights: parsedDuration.nights || "",
-      price: packageData?.priceDetails?.[0]?.discountedPrice || "",
+      days: packageData?.tripDuration?.days || "",
+  nights: packageData?.tripDuration?.nights || "",
+      price: packageData?.priceDetails?.[0]?.discountedPrice || "As per request",
       category: packageData?.subTripCategory?.main || "",
       summary: Array.isArray(overviewObj?.summary)
         ? overviewObj.summary
