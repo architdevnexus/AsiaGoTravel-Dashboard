@@ -1,37 +1,23 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { FaWhatsapp } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaWhatsapp, FaTimes } from "react-icons/fa";
 
-const OverviewSection = ({ overviewData, itinerary = [], setItinerary, inclusions = [],
+const OverviewSection = ({
+  overviewData,
+  itinerary = [],
+  setItinerary,
+  inclusions = [],
   setInclusions,
   price,
   setPrice,
   exclusions = [],
   setExclusions,
   summary = [],
-  setSummary, }) => {
+  setSummary,
+}) => {
   const [activeTab, setActiveTab] = useState("Summary");
 
-  // Get correct overview object
-  const overviewObj = overviewData?.overviewCategory?.[0];
-
-
-  // Initialize form correctly
-  const [form, setForm] = useState({
-    // title: overviewData?.title,
-    // description: overviewObj?.overview || "",
-
-    inclusions: overviewObj?.inclusions || [],
-    exclusions: overviewObj?.exclusions || [],
-    summary: overviewObj?.summary || [],
-
-  });
-
   const tabs = ["Itinerary", "Inclusions", "Exclusions", "Summary"];
-
-  const handleChange = (key, value) => {
-    setForm({ ...form, [key]: value });
-  };
 
   const addFieldItem = (type) => {
     if (type === "inclusions") setInclusions([...inclusions, ""]);
@@ -40,23 +26,24 @@ const OverviewSection = ({ overviewData, itinerary = [], setItinerary, inclusion
   };
 
   const updateFieldItem = (type, index, value) => {
-    if (type === "inclusions") {
-      const updated = [...inclusions];
-      updated[index] = value;
-      setInclusions(updated);
-    }
-    if (type === "exclusions") {
-      const updated = [...exclusions];
-      updated[index] = value;
-      setExclusions(updated);
-    }
-    if (type === "summary") {
-      const updated = [...summary];
-      updated[index] = value;
-      setSummary(updated);
-    }
+    const updater = {
+      inclusions: setInclusions,
+      exclusions: setExclusions,
+      summary: setSummary,
+    }[type];
+
+    const source = {
+      inclusions,
+      exclusions,
+      summary,
+    }[type];
+
+    const updated = [...source];
+    updated[index] = value;
+    updater(updated);
   };
 
+  /* ---------------- ITINERARY FUNCTIONS ---------------- */
 
   const addItineraryDay = () => {
     setItinerary([
@@ -69,42 +56,65 @@ const OverviewSection = ({ overviewData, itinerary = [], setItinerary, inclusion
     ]);
   };
 
-  const updateItineraryTitle = (index, value) => {
-    const updated = [...itinerary];
-    updated[index].title = value;
+  const updateItineraryTitle = (dayIndex, value) => {
+    const updated = itinerary.map((day, i) =>
+      i === dayIndex ? { ...day, title: value } : day
+    );
     setItinerary(updated);
   };
 
-  const updateItineraryDetail = (dayIndex, detailIndex, value) => {
-    const updated = [...itinerary];
-    updated[dayIndex].description[detailIndex] = value;
+  const updateItineraryDetail = (dayIndex, descIndex, value) => {
+    const updated = itinerary.map((day, i) => {
+      if (i !== dayIndex) return day;
+      const newDesc = [...day.description];
+      newDesc[descIndex] = value;
+      return { ...day, description: newDesc };
+    });
     setItinerary(updated);
   };
 
-  const addItineraryDetail = (index) => {
-    const updated = [...itinerary];
-    updated[index].description.push("");
+  const addItineraryDetail = (dayIndex) => {
+    const updated = itinerary.map((day, i) =>
+      i === dayIndex
+        ? { ...day, description: [...day.description, ""] }
+        : day
+    );
     setItinerary(updated);
   };
 
+  /* 🔥 DELETE ONLY ONE DESCRIPTION */
+  const removeItineraryDetail = (dayIndex, descIndex) => {
+    const updated = itinerary.map((day, i) => {
+      if (i !== dayIndex) return day;
 
+      const filtered = day.description.filter(
+        (_, idx) => idx !== descIndex
+      );
 
+      return {
+        ...day,
+        description: filtered.length ? filtered : [""],
+      };
+    });
+
+    setItinerary(updated);
+  };
 
   return (
     <section className="w-full bg-white py-10 px-5 md:px-16">
       <div className="grid md:grid-cols-3 gap-8">
         {/* LEFT CONTENT */}
         <div className="md:col-span-2">
-
           <div className="flex border-b mb-4 text-sm font-medium text-gray-600">
             {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 border-b-2 transition-all ${activeTab === tab
+                className={`px-4 py-2 border-b-2 transition-all ${
+                  activeTab === tab
                     ? "border-[#1B4965] text-white bg-[#1B4965] font-semibold rounded-lg mb-2"
                     : "border-transparent hover:text-[#1B4965]"
-                  }`}
+                }`}
               >
                 {tab}
               </button>
@@ -114,31 +124,58 @@ const OverviewSection = ({ overviewData, itinerary = [], setItinerary, inclusion
           {/* ITINERARY */}
           {activeTab === "Itinerary" && (
             <div>
-              {itinerary?.map((day, index) => (
-                <div key={index} className="mb-6 p-4 border rounded">
+              {itinerary.map((day, dayIndex) => (
+                <div key={dayIndex} className="mb-6 p-4 border rounded">
                   <h4 className="font-bold">{day.day}</h4>
 
                   <input
                     value={day.title}
                     onChange={(e) =>
-                      updateItineraryTitle(index, e.target.value)
+                      updateItineraryTitle(dayIndex, e.target.value)
                     }
                     placeholder="Day title"
+                    className="w-full border p-2 rounded mb-3"
                   />
 
-                  {day.description.map((desc, i) => (
-                    <input
-                      key={i}
-                      value={desc}
-                      onChange={(e) =>
-                        updateItineraryDetail(index, i, e.target.value)
-                      }
-                      placeholder="Description"
-                    />
+                  {day.description.map((desc, descIndex) => (
+                    <div
+                      key={descIndex}
+                      className="flex items-center gap-2 mb-2"
+                    >
+                      <input
+                        value={desc}
+                        onChange={(e) =>
+                          updateItineraryDetail(
+                            dayIndex,
+                            descIndex,
+                            e.target.value
+                          )
+                        }
+                        placeholder="Description"
+                        className="flex-1 border p-2 rounded"
+                      />
+
+                      {/* ❌ DELETE DESCRIPTION */}
+                      <button
+                        onClick={() =>
+                          removeItineraryDetail(dayIndex, descIndex)
+                        }
+                        className="text-red-500 hover:text-red-700"
+                        title="Delete description"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
                   ))}
+
+                  <button
+                    onClick={() => addItineraryDetail(dayIndex)}
+                    className="text-sm text-blue-600 mt-2"
+                  >
+                    + Add Description
+                  </button>
                 </div>
               ))}
-
 
               <button
                 className="px-4 py-2 bg-[#1B4965] text-white rounded"
@@ -162,8 +199,6 @@ const OverviewSection = ({ overviewData, itinerary = [], setItinerary, inclusion
                   }
                 />
               ))}
-
-
               <button
                 className="px-4 py-2 bg-green-600 text-white rounded"
                 onClick={() => addFieldItem("inclusions")}
@@ -186,8 +221,6 @@ const OverviewSection = ({ overviewData, itinerary = [], setItinerary, inclusion
                   }
                 />
               ))}
-
-
               <button
                 className="px-4 py-2 bg-red-600 text-white rounded"
                 onClick={() => addFieldItem("exclusions")}
@@ -210,8 +243,6 @@ const OverviewSection = ({ overviewData, itinerary = [], setItinerary, inclusion
                   }
                 />
               ))}
-
-
               <button
                 className="px-4 py-2 bg-gray-700 text-white rounded"
                 onClick={() => addFieldItem("summary")}
@@ -223,22 +254,19 @@ const OverviewSection = ({ overviewData, itinerary = [], setItinerary, inclusion
         </div>
 
         {/* RIGHT SIDEBAR */}
-        <div className="bg-white shadow-md rounded-lg p-5 border border-gray-100 flex flex-col h-full min-h-[550px]">
-          <div className="flex-1">
-            <h3 className="text-gray-800 font-semibold">Starting From</h3>
+        <div className="bg-white shadow-md rounded-lg p-5 border border-gray-100 flex flex-col min-h-[550px]">
+          <h3 className="text-gray-800 font-semibold">Starting From</h3>
 
-        <input
-  type="number"
-  className="text-3xl font-bold text-gray-900 mt-2 w-full border p-2 rounded"
-  value={price || ""}
-  onChange={(e) => setPrice(e.target.value)}
-/>
+          <input
+            type="number"
+            className="text-3xl font-bold text-gray-900 mt-2 w-full border p-2 rounded"
+            value={price || ""}
+            onChange={(e) => setPrice(e.target.value)}
+          />
 
-
-            <button className="flex items-center justify-center gap-2 w-full border border-[#1B4965] text-green-600 py-2 rounded-md hover:bg-green-50 transition mt-6">
-              <FaWhatsapp /> Whatsapp
-            </button>
-          </div>
+          <button className="flex items-center justify-center gap-2 w-full border border-[#1B4965] text-green-600 py-2 rounded-md hover:bg-green-50 transition mt-6">
+            <FaWhatsapp /> Whatsapp
+          </button>
         </div>
       </div>
     </section>
