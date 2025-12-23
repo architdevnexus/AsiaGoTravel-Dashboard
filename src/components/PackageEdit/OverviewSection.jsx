@@ -19,6 +19,8 @@ const OverviewSection = ({
 
   const tabs = ["Itinerary", "Inclusions", "Exclusions", "Summary"];
 
+  /* ---------------- COMMON FIELD HELPERS ---------------- */
+
   const addFieldItem = (type) => {
     if (type === "inclusions") setInclusions([...inclusions, ""]);
     if (type === "exclusions") setExclusions([...exclusions, ""]);
@@ -32,15 +34,23 @@ const OverviewSection = ({
       summary: setSummary,
     }[type];
 
-    const source = {
-      inclusions,
-      exclusions,
-      summary,
-    }[type];
-
+    const source = { inclusions, exclusions, summary }[type];
     const updated = [...source];
     updated[index] = value;
     updater(updated);
+  };
+
+  const removeFieldItem = (type, index) => {
+    const updater = {
+      inclusions: setInclusions,
+      exclusions: setExclusions,
+      summary: setSummary,
+    }[type];
+
+    const source = { inclusions, exclusions, summary }[type];
+
+    const filtered = source.filter((_, i) => i !== index);
+    updater(filtered.length ? filtered : [""]);
   };
 
   /* ---------------- ITINERARY FUNCTIONS ---------------- */
@@ -82,21 +92,12 @@ const OverviewSection = ({
     setItinerary(updated);
   };
 
-  /* 🔥 DELETE ONLY ONE DESCRIPTION */
   const removeItineraryDetail = (dayIndex, descIndex) => {
     const updated = itinerary.map((day, i) => {
       if (i !== dayIndex) return day;
-
-      const filtered = day.description.filter(
-        (_, idx) => idx !== descIndex
-      );
-
-      return {
-        ...day,
-        description: filtered.length ? filtered : [""],
-      };
+      const filtered = day.description.filter((_, idx) => idx !== descIndex);
+      return { ...day, description: filtered.length ? filtered : [""] };
     });
-
     setItinerary(updated);
   };
 
@@ -138,10 +139,7 @@ const OverviewSection = ({
                   />
 
                   {day.description.map((desc, descIndex) => (
-                    <div
-                      key={descIndex}
-                      className="flex items-center gap-2 mb-2"
-                    >
+                    <div key={descIndex} className="flex items-center gap-2 mb-2">
                       <input
                         value={desc}
                         onChange={(e) =>
@@ -155,7 +153,6 @@ const OverviewSection = ({
                         className="flex-1 border p-2 rounded"
                       />
 
-                      {/* ❌ DELETE DESCRIPTION */}
                       <button
                         onClick={() =>
                           removeItineraryDetail(dayIndex, descIndex)
@@ -190,14 +187,21 @@ const OverviewSection = ({
           {activeTab === "Inclusions" && (
             <div>
               {inclusions.map((item, i) => (
-                <input
-                  key={i}
-                  className="w-full border p-2 rounded mb-2"
-                  value={item}
-                  onChange={(e) =>
-                    updateFieldItem("inclusions", i, e.target.value)
-                  }
-                />
+                <div key={i} className="flex items-center gap-2 mb-2">
+                  <input
+                    className="flex-1 border p-2 rounded"
+                    value={item}
+                    onChange={(e) =>
+                      updateFieldItem("inclusions", i, e.target.value)
+                    }
+                  />
+                  <button
+                    onClick={() => removeFieldItem("inclusions", i)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
               ))}
               <button
                 className="px-4 py-2 bg-green-600 text-white rounded"
@@ -212,14 +216,21 @@ const OverviewSection = ({
           {activeTab === "Exclusions" && (
             <div>
               {exclusions.map((item, i) => (
-                <input
-                  key={i}
-                  className="w-full border p-2 rounded mb-2"
-                  value={item}
-                  onChange={(e) =>
-                    updateFieldItem("exclusions", i, e.target.value)
-                  }
-                />
+                <div key={i} className="flex items-center gap-2 mb-2">
+                  <input
+                    className="flex-1 border p-2 rounded"
+                    value={item}
+                    onChange={(e) =>
+                      updateFieldItem("exclusions", i, e.target.value)
+                    }
+                  />
+                  <button
+                    onClick={() => removeFieldItem("exclusions", i)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
               ))}
               <button
                 className="px-4 py-2 bg-red-600 text-white rounded"
@@ -234,14 +245,21 @@ const OverviewSection = ({
           {activeTab === "Summary" && (
             <div>
               {summary.map((item, i) => (
-                <input
-                  key={i}
-                  className="w-full border p-2 rounded mb-2"
-                  value={item}
-                  onChange={(e) =>
-                    updateFieldItem("summary", i, e.target.value)
-                  }
-                />
+                <div key={i} className="flex items-center gap-2 mb-2">
+                  <input
+                    className="flex-1 border p-2 rounded"
+                    value={item}
+                    onChange={(e) =>
+                      updateFieldItem("summary", i, e.target.value)
+                    }
+                  />
+                  <button
+                    onClick={() => removeFieldItem("summary", i)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
               ))}
               <button
                 className="px-4 py-2 bg-gray-700 text-white rounded"
@@ -267,7 +285,7 @@ const OverviewSection = ({
           <button className="flex items-center justify-center gap-2 w-full border border-[#1B4965] text-green-600 py-2 rounded-md hover:bg-green-50 transition mt-6">
             <FaWhatsapp /> Whatsapp
           </button>
-        </div>
+        </div>  
       </div>
     </section>
   );
