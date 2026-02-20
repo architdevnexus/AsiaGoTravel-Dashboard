@@ -130,7 +130,7 @@ const handleSubmit = async (e) => {
     const token = localStorage.getItem("refreshToken");
 
     const response = await fetch(
-      "https://backend.asiagotravels.com/api/addPackage",
+      `${import.meta.env.VITE_BASE_URL}/addPackage`,
       {
         method: "POST",
         headers: {

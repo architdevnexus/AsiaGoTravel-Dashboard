@@ -146,8 +146,8 @@ export const PackageProductPage = ({ images = [], title = "" , setTitle , locati
       {/* Preview Section */}
       <div className="flex gap-3 overflow-x-auto">
         {editableImages[0] && (
-          <div className="relative w-[400px] h-[325px] rounded-lg overflow-hidden shrink-0">
-            <img src={editableImages[0]} className="w-full h-full object-cover" />
+          <div className="relative shadow-lg w-[400px] h-[325px] rounded-lg overflow-hidden shrink-0">
+            <img src={editableImages[0]} className="w-full h-full object-contain" />
           </div>
         )}
 
@@ -157,11 +157,11 @@ export const PackageProductPage = ({ images = [], title = "" , setTitle , locati
               editableImages[i] && (
                 <div
                   key={i}
-                  className="relative w-[300px] h-40 rounded-lg overflow-hidden"
+                  className="relative w-[300px] shadow-lg h-40 rounded-lg overflow-hidden"
                 >
                   <img
                     src={editableImages[i]}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full   object-contain"
                   />
                 </div>
               )
@@ -169,10 +169,10 @@ export const PackageProductPage = ({ images = [], title = "" , setTitle , locati
         </div>
 
         {editableImages[3] && (
-          <div className="relative w-[400px] h-[325px] rounded-lg overflow-hidden shrink-0">
+          <div className="relative shadow-lg w-[400px] h-[325px]   rounded-lg overflow- shrink-0">
             <img
               src={editableImages[3]}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
         )}

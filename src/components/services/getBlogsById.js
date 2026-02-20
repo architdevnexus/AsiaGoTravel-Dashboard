@@ -1,6 +1,6 @@
 export const getBlogsById = async (id) => {
   try {
-    const res = await fetch(`https://backend.asiagotravels.com/api/AllBlog/${id}`, {
+    const res = await fetch(`${import.meta.env.VITE_BASE_URL}/AllBlog/${id}`, {
       method: "GET",
       cache: "no-store",
     });

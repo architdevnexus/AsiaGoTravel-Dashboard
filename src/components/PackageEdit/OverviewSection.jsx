@@ -10,6 +10,10 @@ const OverviewSection = ({
   setInclusions,
   price,
   setPrice,
+  note,
+  setNote,
+  priceDescription,
+  setPriceDescription,
   exclusions = [],
   setExclusions,
   summary = [],
@@ -111,11 +115,10 @@ const OverviewSection = ({
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 border-b-2 transition-all ${
-                  activeTab === tab
-                    ? "border-[#1B4965] text-white bg-[#1B4965] font-semibold rounded-lg mb-2"
-                    : "border-transparent hover:text-[#1B4965]"
-                }`}
+                className={`px-4 py-2 border-b-2 transition-all ${activeTab === tab
+                  ? "border-[#1B4965] text-white bg-[#1B4965] font-semibold rounded-lg mb-2"
+                  : "border-transparent hover:text-[#1B4965]"
+                  }`}
               >
                 {tab}
               </button>
@@ -281,11 +284,27 @@ const OverviewSection = ({
             value={price || ""}
             onChange={(e) => setPrice(e.target.value)}
           />
+          <input
+            type="text"
+            placeholder="price description "
+            required
+            className="  text-gray-900 mt-2 w-full border p-2 rounded"
+            value={priceDescription}
+            onChange={(e) => setPriceDescription(e.target.value)}
+          />
+          {/* <input
+            type="text"
+            placeholder="As per Person"
+            required
+            className="text-xl  text-gray-900 mt-2 w-full border p-2 rounded"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          /> */}
 
           <button className="flex items-center justify-center gap-2 w-full border border-[#1B4965] text-green-600 py-2 rounded-md hover:bg-green-50 transition mt-6">
             <FaWhatsapp /> Whatsapp
           </button>
-        </div>  
+        </div>
       </div>
     </section>
   );

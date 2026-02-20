@@ -26,7 +26,7 @@ export const ResetPassword = () => {
 
     try {
       const res = await fetch(
-        `https://backend.asiagotravels.com/api/reset-password/${token}`,
+        `${import.meta.env.VITE_BASE_URL}/reset-password/${token}`,
         {
           method: "POST",
           headers: {

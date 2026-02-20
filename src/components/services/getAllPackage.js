@@ -1,7 +1,7 @@
 // services/getAllPackages.js
 export const getAllPackages = async () => {
   try {
-    const res = await fetch("https://backend.asiagotravels.com/api/allPackage", {
+    const res = await fetch(`${import.meta.env.VITE_BASE_URL}/allPackage`, {
       method: "GET",
     });
 
@@ -15,19 +15,18 @@ export const getAllPackages = async () => {
   }
 };
 
-
 export const updatePackageById = async (id, formData) => {
   const token = localStorage.getItem("token");
 
   const response = await fetch(
-    `https://backend.asiagotravels.com/api/package/update/${id}`,
+    `${import.meta.env.VITE_BASE_URL}/package/update/${id}`,
     {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
       },
       body: formData, // FormData MUST NOT have Content-Type
-    }
+    },
   );
 
   if (!response.ok) {

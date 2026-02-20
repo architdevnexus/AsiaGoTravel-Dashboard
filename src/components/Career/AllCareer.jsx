@@ -18,7 +18,7 @@ export const CareerJobCard = ({ job, onDelete }) => {
 
     try {
       const res = await fetch(
-        `https://backend.asiagotravels.com/api/jobs/update/${editableJob._id}`,
+        `${import.meta.env.VITE_BASE_URL}/jobs/update/${editableJob._id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

@@ -1,6 +1,6 @@
 export const getAllBlogs = async () => {
   try {
-    const res = await fetch("https://backend.asiagotravels.com/api/AllBlog", {
+    const res = await fetch(`${import.meta.env.VITE_BASE_URL}/AllBlog`, {
       method: "GET",
     });
 

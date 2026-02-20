@@ -19,7 +19,9 @@ const PackageSlugPage = () => {
     overview: "",
     days: "",
     nights: "",
+    priceDescription: "",
     price: "",
+    note: "",
     category: "",
     summary: [],    // ✅
     inclusions: [],    // ✅ array
@@ -36,20 +38,24 @@ const PackageSlugPage = () => {
   useEffect(() => {
     if (!packageData) return;
 
+    // console.log(packageData)
+
     // let parsedDuration = { days: "", nights: "" };
     // try {
     //   parsedDuration = JSON.parse(packageData.tripDuration);
     // } catch { }
 
     const overviewObj = packageData?.overviewCategory?.[0] || {};
-    console.log("Loaded Overview Obj:", overviewObj);
+    console.log("Loaded Overview Obj:", packageData);
 
     setForm({
       title: packageData?.title || "",
       location: packageData.location || "",
       overview: overviewObj.overview || "",
       days: packageData?.tripDuration?.days || "",
-  nights: packageData?.tripDuration?.nights || "",
+      nights: packageData?.tripDuration?.nights || "",
+      priceDescription: packageData?.priceDetails?.[0]?.priceDescription || "",
+      // note: packageData?.priceDetails?.[0]?.note || "",
       price: packageData?.priceDetails?.[0]?.discountedPrice || "As per request",
       category: packageData?.subTripCategory?.main || "",
       summary: Array.isArray(overviewObj?.summary)
@@ -77,6 +83,7 @@ const PackageSlugPage = () => {
       overviewObj?.images?.map((img) => ({
         type: "existing",
         url: img.url,
+        publicId: img.publicId
       })) || [];
 
     setImages(existingImages);
@@ -87,7 +94,9 @@ const PackageSlugPage = () => {
         type: "existing",
         url: ic.url,
         name: ic.name,
+        publicId: ic.publicId
       })) || [];
+
 
     setIcons(existingIcons);
   }, [packageData]);
@@ -150,33 +159,41 @@ const PackageSlugPage = () => {
             originalPrice: Number(form.price),
             discountedPrice: Number(form.price),
             currency: "$",
-            note: "Per Person",
+            // note: form.note,
+            priceDescription: form.priceDescription,
           },
         ])
       );
 
       // ⭐ Images
-      const finalImagesArray = [
-        ...images
-          .filter((img) => img.type === "existing")
-          .map((img) => ({ url: img.url })),
-        ...images
-          .filter((img) => img.type === "new")
-          .map((img) => ({
-            url: "",
-            fileName: img.file.name,
-          })),
-      ];
+      // const finalImagesArray = [
+      //   ...images
+      //     .filter((img) => img.type === "existing")
+      //     .map((img) => ({ url: img.url })),
+      //   ...images
+      //     .filter((img) => img.type === "new")
+      //     .map((img) => ({
+      //       url: "",
+      //       fileName: img.file.name,
+      //     })),
+      // ];
+
+      const keepImages = images
+        .filter((img) => img.type === "existing")
+        .map((img) => ({
+          url: img.url,
+          publicId: img.publicId
+        }));
+
 
       // ⭐ Icons
-      const finalIconsArray = [
-        ...icons
-          .filter((ic) => ic.type === "existing")
-          .map((ic) => ({ url: ic.url, name: ic.name })),
-        ...icons
-          .filter((ic) => ic.type === "new")
-          .map((ic) => ({ url: "", name: ic.file.name })),
-      ];
+      const finalIconsArray = icons
+        .filter((ic) => ic.type === "existing")
+        .map((ic) => ({
+          url: ic.url,
+          name: ic.name,
+          publicId: ic.publicId
+        }));
 
       // ⭐ OVERVIEW CATEGORY (ONLY ONCE)
       fd.append(
@@ -188,12 +205,13 @@ const PackageSlugPage = () => {
             inclusions: form.inclusions,
             exclusions: form.exclusions,
             summary: form.summary,
-            images: finalImagesArray,
+            images: keepImages
           },
+
         ])
       );
-
       fd.append("iconsData", JSON.stringify(finalIconsArray));
+
 
       images
         .filter((img) => img.type === "new")
@@ -233,7 +251,7 @@ const PackageSlugPage = () => {
         }
 
         days={form.days}
-nights={form.nights}
+        nights={form.nights}
 
         setDays={(value) =>
           setForm((prev) => ({ ...prev, days: value }))
@@ -269,6 +287,14 @@ nights={form.nights}
         setPrice={(value) =>
           setForm((prev) => ({ ...prev, price: value }))
         }
+        // setNote={(value) =>
+        //   setForm((prev) => ({ ...prev, note: value }))
+        // }
+        // note={form.note}
+        setPriceDescription={(value) =>
+          setForm((prev) => ({ ...prev, priceDescription: value }))
+        }
+        priceDescription={form.priceDescription}
       />
 
 

@@ -10,7 +10,7 @@ export default function Testimonials() {
   const fetchTestimonials = async () => {
     try {
       const res = await fetch(
-        "https://backend.asiagotravels.com/api/allTestimonials"
+        `${import.meta.env.VITE_BASE_URL}/allTestimonials`
       );
 
       if (!res.ok) {
@@ -50,7 +50,7 @@ export default function Testimonials() {
 
     try {
       const res = await fetch(
-        `https://backend.asiagotravels.com/api/testimonial/delete/${item._id}`,
+        `${import.meta.env.VITE_BASE_URL}/testimonial/delete/${item._id}`,
         { method: "DELETE" }
       );
 
@@ -82,8 +82,8 @@ export default function Testimonials() {
       });
 
       const url = editingItem
-        ? `https://backend.asiagotravels.com/api/testimonial/update/${editingItem._id}`
-        : "https://backend.asiagotravels.com/api/create-Testimonials";
+        ? `${import.meta.env.VITE_BASE_URL}/testimonial/update/${editingItem._id}`
+        : `${import.meta.env.VITE_BASE_URL}/create-Testimonials`;
 
       const method = editingItem ? "PATCH" : "POST";
 

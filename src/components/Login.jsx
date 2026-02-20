@@ -26,7 +26,7 @@ export const Login = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("https://backend.asiagotravels.com/api/login", {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

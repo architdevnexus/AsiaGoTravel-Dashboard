@@ -34,7 +34,7 @@ const CreateBlogs = () => {
       setLoading(true);
 
       const res = await fetch(
-        "https://backend.asiagotravels.com/api/blogPost",
+        `${import.meta.env.VITE_BASE_URL}/blogPost`,
         {
           method: "POST",
           headers: {

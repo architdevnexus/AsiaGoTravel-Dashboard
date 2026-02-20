@@ -17,7 +17,7 @@ const EditBlog = () => {
     const fetchBlog = async () => {
       try {
         const res = await fetch(
-          `https://backend.asiagotravels.com/api/AllBlog/${id}`
+          `${import.meta.env.VITE_BASE_URL}/AllBlog/${id}`
         );
         const data = await res.json();
 

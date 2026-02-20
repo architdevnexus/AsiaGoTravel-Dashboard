@@ -15,7 +15,7 @@ export const Career = () => {
     try {
       setLoading(true);
 
-      const res = await fetch("https://backend.asiagotravels.com/api/jobs/all", {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/jobs/all`, {
         method: "GET",
       });
 
@@ -51,7 +51,7 @@ export const Career = () => {
 
     try {
       const res = await fetch(
-        `https://backend.asiagotravels.com/api/jobs/delete/${job._id}`,
+        `${import.meta.env.VITE_BASE_URL}/jobs/delete/${job._id}`,
         {
           method: "DELETE",
           headers: {

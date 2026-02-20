@@ -14,7 +14,7 @@ export const AllJobApplicants = () => {
 
   const fetchApplicants = async () => {
     try {
-      const response = await fetch("https://backend.asiagotravels.com/api/jointeam/all", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/jointeam/all`, {
         method: "GET",
         headers: {
           "Content-Type": "text/plain",
@@ -37,7 +37,7 @@ export const AllJobApplicants = () => {
 
     try {
       const res = await fetch(
-        `https://backend.asiagotravels.com/api/jointeam/delete/${deleteId}`,
+        `${import.meta.env.VITE_BASE_URL}/jointeam/delete/${deleteId}`,
         { method: "DELETE" }
       );
 

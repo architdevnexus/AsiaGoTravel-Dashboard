@@ -26,7 +26,7 @@ export const PackageEdit = ({ slug }) => {
       if (!token) return console.error("Token missing!");
 
       const response = await fetch(
-        `https://backend.asiagotravels.com/api/package/delete/${item._id}`,
+        `${import.meta.env.VITE_BASE_URL}/package/delete/${item._id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

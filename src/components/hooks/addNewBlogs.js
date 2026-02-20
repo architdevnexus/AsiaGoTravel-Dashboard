@@ -139,7 +139,7 @@ const addNewBlog = async () => {
     formData.append("filterTags", JSON.stringify(["Honeymoon", "family Package"]));
 
     // FETCH API CALL
-    const res = await fetch("https://backend.asiagotravels.com/api/addPackage", {
+    const res = await fetch(`${import.meta.env.VITE_BASE_URL}/addPackage`, {
       method: "POST",
       body: formData,
     });

@@ -26,7 +26,7 @@ export const CreateCareerJobForm = ({ onCreateJob, onClose }) => {
 
     try {
       const response = await fetch(
-        "https://backend.asiagotravels.com/api/jobs",
+        `${import.meta.env.VITE_BASE_URL}/jobs`,
         {
           method: "POST",
           headers: {
