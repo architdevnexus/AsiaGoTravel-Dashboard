@@ -16,8 +16,8 @@ export const BlogsSlugPage = () => {
     try {
       const data = await getBlogsById(id);
 
-      console.log("Blog by ID:", data.blog); 
-      setBlogData(data.blog);                
+      console.log("Blog by ID:", data.blog);
+      setBlogData(data.blog);
     } catch (error) {
       console.error("Error fetching blog:", error);
     } finally {
@@ -34,14 +34,14 @@ export const BlogsSlugPage = () => {
     <div className="p-5 pt-20 max-w-3xl mx-auto">
 
       {/* Blog Image */}
-        <img
-          src={blogData.featureImage}
-          alt={blogData.title}
-          className="w-full rounded-lg mb-6"
-        />
-  
+      <img
+        src={blogData?.featureImage?.url || blogData?.featureImage}
+        alt={blogData.title}
+        className="w-full rounded-lg mb-6"
+      />
 
-     
+
+
       {/* Title */}
       <h1 className="text-3xl font-bold mb-4">{blogData.title}</h1>
 

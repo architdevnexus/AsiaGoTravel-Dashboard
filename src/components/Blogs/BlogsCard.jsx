@@ -7,7 +7,7 @@ import { FiEdit, FiTrash2 } from "react-icons/fi";
 export const BlogsCard = ({
   grid = "grid-cols-1 md:grid-cols-3",
   blogs = [],
-  onDelete = () => {},
+  onDelete = () => { },
 }) => {
   return (
     <div>
@@ -22,7 +22,7 @@ export const BlogsCard = ({
               <div className="relative">
                 <img
                   src={
-                    pkg?.featureImage
+                    pkg?.featureImage?.url || pkg?.featureImage
                   }
                   alt={pkg?.location || "Blog Image"}
                   className="w-full h-56 object-cover p-3 rounded-4xl"

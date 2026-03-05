@@ -38,9 +38,9 @@ function App() {
         <Route
           path="/dashboard"
           element={
-           <ProtectedRoute>
-            <DashboardLayout />
-           </ProtectedRoute>
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
           }
         >
           <Route index element={<h2>Dashboard Home</h2>} />
@@ -60,9 +60,7 @@ function App() {
           <Route
             path="all-packages/:id"
             element={
-
               <PackageSlugPage />
-
             }
           />
         </Route>
